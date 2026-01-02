@@ -231,21 +231,18 @@ class JurorSwarm:
         Calculate the final verdict based on average jury score.
         
         Thresholds:
-        - >= 53: Plaintiff wins
-        - <= 47: Defense wins
-        - 47-53: Hung jury (very narrow)
+        - > 50: Plaintiff wins
+        - <= 50: Defense wins (benefit of doubt to defendant)
+        No hung jury option.
         """
         avg = self.get_average_score()
         scores = self.get_scores()
         
-        if avg >= 53:
+        if avg > 50:
             verdict = "PLAINTIFF"
             damages = int((avg - 50) * 20000)
-        elif avg <= 47:
-            verdict = "DEFENSE"
-            damages = 0
         else:
-            verdict = "HUNG_JURY"
+            verdict = "DEFENSE"
             damages = 0
         
         return {

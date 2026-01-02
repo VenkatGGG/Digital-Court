@@ -733,9 +733,11 @@ def main():
         if plaintiff_msgs:
             for idx, msg in enumerate(plaintiff_msgs):
                 content = msg.get('content', '')
-                preview = content[:80] + "..." if len(content) > 80 else content
-                preview = preview.replace('<', '&lt;').replace('>', '&gt;').replace('\n', ' ')
-                full_content = content.replace('<', '&lt;').replace('>', '&gt;').replace('\n', '<br>')
+                # Escape first, then add HTML formatting
+                escaped_content = content.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+                preview = escaped_content[:80] + "..." if len(escaped_content) > 80 else escaped_content
+                preview = preview.replace('\n', ' ')
+                full_content = escaped_content.replace('\n', '<br>')
                 round_label = f"Round {idx + 1}"
                 
                 history_html += f'''
@@ -798,9 +800,11 @@ def main():
         if defense_msgs:
             for idx, msg in enumerate(defense_msgs):
                 content = msg.get('content', '')
-                preview = content[:80] + "..." if len(content) > 80 else content
-                preview = preview.replace('<', '&lt;').replace('>', '&gt;').replace('\n', ' ')
-                full_content = content.replace('<', '&lt;').replace('>', '&gt;').replace('\n', '<br>')
+                # Escape first, then add HTML formatting
+                escaped_content = content.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+                preview = escaped_content[:80] + "..." if len(escaped_content) > 80 else escaped_content
+                preview = preview.replace('\n', ' ')
+                full_content = escaped_content.replace('\n', '<br>')
                 round_label = f"Round {idx + 1}"
                 
                 history_html += f'''
@@ -846,13 +850,11 @@ def main():
                 thought = persona.get("thought", "No thoughts recorded")
                 emoji = JUROR_EMOJI_MAP.get(name, "👤")
                 
-                # Leaning indicator
-                if score >= 55:
-                    leaning = "🔴 Leaning Plaintiff"
-                elif score <= 45:
-                    leaning = "🔵 Leaning Defense"
+                # Leaning indicator (50 is the threshold)
+                if score > 50:
+                    leaning = "🔴 Favors Plaintiff"
                 else:
-                    leaning = "⚪ Undecided"
+                    leaning = "🔵 Favors Defense"
                 
                 col1, col2 = st.columns([2, 1])
                 with col1:
