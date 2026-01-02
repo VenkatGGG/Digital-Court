@@ -1,0 +1,177 @@
+{
+    "jurors": [
+        {
+            "id": "juror_001",
+            "name": "Margaret Chen",
+            "age": 58,
+            "occupation": "Retired School Principal",
+            "education": "Master's in Education",
+            "background": "Spent 30 years in public education, raised three children as a single mother after her husband's death. Strong believer in personal responsibility and structured systems.",
+            "personality_traits": [
+                "methodical",
+                "patient",
+                "authoritative",
+                "empathetic towards family struggles"
+            ],
+            "hidden_biases": {
+                "pro": [
+                    "education",
+                    "family values",
+                    "institutional processes"
+                ],
+                "anti": [
+                    "corporate negligence",
+                    "shortcuts",
+                    "lack of accountability"
+                ]
+            },
+            "decision_style": "Deliberate and evidence-focused. Will ask 'what does the rule say?' before considering emotions.",
+            "initial_bias_score": 50
+        },
+        {
+            "id": "juror_002",
+            "name": "Derek 'Big D' Washington",
+            "age": 34,
+            "occupation": "Small Business Owner (Auto Repair Shop)",
+            "education": "High School Diploma, Trade Certification",
+            "background": "Self-made entrepreneur from a working-class neighborhood. Lost his first business to a frivolous lawsuit. Skeptical of the legal system's fairness.",
+            "personality_traits": [
+                "skeptical",
+                "street-smart",
+                "protective of small business",
+                "distrustful of lawyers"
+            ],
+            "hidden_biases": {
+                "pro": [
+                    "small business",
+                    "working class",
+                    "self-reliance"
+                ],
+                "anti": [
+                    "frivolous lawsuits",
+                    "big corporations",
+                    "expensive lawyers"
+                ]
+            },
+            "decision_style": "Gut-feel first, facts second. Sympathizes with underdogs but hates perceived opportunism.",
+            "initial_bias_score": 45
+        },
+        {
+            "id": "juror_003",
+            "name": "Dr. Priya Ramanathan",
+            "age": 42,
+            "occupation": "Biomedical Researcher",
+            "education": "Ph.D. in Molecular Biology",
+            "background": "Immigrant from India, naturalized citizen for 15 years. Works at a pharmaceutical company. Very data-driven and uncomfortable with ambiguity.",
+            "personality_traits": [
+                "analytical",
+                "reserved",
+                "precision-oriented",
+                "uncomfortable with emotion-based arguments"
+            ],
+            "hidden_biases": {
+                "pro": [
+                    "scientific evidence",
+                    "expert testimony",
+                    "pharmaceutical industry"
+                ],
+                "anti": [
+                    "anecdotal evidence",
+                    "emotional appeals",
+                    "anti-science rhetoric"
+                ]
+            },
+            "decision_style": "Requires statistical significance. Will dismiss arguments lacking concrete proof.",
+            "initial_bias_score": 50
+        },
+        {
+            "id": "juror_004",
+            "name": "Thomas 'Tommy' O'Brien",
+            "age": 67,
+            "occupation": "Retired NYPD Detective",
+            "education": "Associate's Degree in Criminal Justice",
+            "background": "35 years on the force, mostly in homicide. Seen the worst of humanity. Strong respect for law enforcement and procedural justice.",
+            "personality_traits": [
+                "observant",
+                "cynical",
+                "respects authority",
+                "suspicious of inconsistencies"
+            ],
+            "hidden_biases": {
+                "pro": [
+                    "law enforcement",
+                    "procedure",
+                    "victim's rights"
+                ],
+                "anti": [
+                    "criminals",
+                    "technicalities that let guilty go free",
+                    "bleeding heart arguments"
+                ]
+            },
+            "decision_style": "Interrogates every claim. Looks for holes in stories. Trusts his instincts about credibility.",
+            "initial_bias_score": 55
+        },
+        {
+            "id": "juror_005",
+            "name": "Aaliyah Jackson",
+            "age": 26,
+            "occupation": "Social Media Manager & Part-time Grad Student",
+            "education": "Bachelor's in Communications, pursuing MBA",
+            "background": "Gen-Z activist, passionate about social justice and corporate accountability. Has participated in several protests against big tech companies.",
+            "personality_traits": [
+                "idealistic",
+                "outspoken",
+                "justice-oriented",
+                "impatient with slow processes"
+            ],
+            "hidden_biases": {
+                "pro": [
+                    "individual rights",
+                    "whistleblowers",
+                    "consumer protection"
+                ],
+                "anti": [
+                    "large corporations",
+                    "wealth inequality",
+                    "bureaucratic delays"
+                ]
+            },
+            "decision_style": "Emotionally engaged. Will fight for the 'little guy' and push for maximum accountability.",
+            "initial_bias_score": 40
+        },
+        {
+            "id": "juror_006",
+            "name": "Richard 'Rick' Hoffman",
+            "age": 51,
+            "occupation": "Insurance Claims Adjuster",
+            "education": "Bachelor's in Business Administration",
+            "background": "20 years evaluating claims, has seen countless fraudulent cases. Divorced, two college-age kids. Pragmatic and number-focused.",
+            "personality_traits": [
+                "calculating",
+                "risk-averse",
+                "detail-oriented",
+                "suspicious of inflated claims"
+            ],
+            "hidden_biases": {
+                "pro": [
+                    "documentation",
+                    "reasonable settlements",
+                    "fiscal responsibility"
+                ],
+                "anti": [
+                    "exaggerated damages",
+                    "emotional manipulation",
+                    "lottery-style verdicts"
+                ]
+            },
+            "decision_style": "Always asks 'what's this really worth?' Skeptical of large damage requests.",
+            "initial_bias_score": 60
+        }
+    ],
+    "meta": {
+        "total_jurors": 6,
+        "version": "1.0",
+        "description": "Diverse jury panel for Lex Umbra simulation. Each juror has hidden biases that influence their verdict scoring."
+    }
+}
