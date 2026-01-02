@@ -920,18 +920,25 @@ def get_css() -> str:
 
     /* Argument Card using HTML details/summary (no Material Icons needed) */
     .argument-card {
-        background: rgba(0, 0, 0, 0.3);
+        background: rgba(10, 12, 16, 0.4);
         border: 1px solid var(--border-subtle);
         border-radius: 4px;
         margin-bottom: 0.4rem;
         overflow: hidden;
+        transition: border-color 0.2s ease;
+    }
+
+    .argument-card:hover {
+        border-color: var(--border-glow);
     }
 
     .argument-card summary {
-        padding: 0.6rem 0.8rem;
+        padding: 0.7rem 0.8rem;
         cursor: pointer;
         font-size: 0.85rem;
         color: var(--text-secondary);
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 500;
         list-style: none;
         display: flex;
         align-items: center;
