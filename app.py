@@ -28,6 +28,7 @@ from ui.components import (
     JurorDisplay,
     render_jury_box,
     JUROR_EMOJI_MAP,
+    render_counsel_box,
 )
 from ui.handlers import stream_response, extract_pdf_text
 
@@ -479,31 +480,38 @@ def run_autonomous_trial(orch, plaintiff_placeholder, defense_placeholder, judge
             
         elif event_type == "plaintiff_speaking":
             status_container.markdown("🔴 **Plaintiff speaking...**")
+            # Clear previous "streaming" state by rendering just history
+            plaintiff_msgs = [m for m in orch.get_transcript() if m.get('agent_type') == 'plaintiff']
+            plaintiff_placeholder.markdown(render_counsel_box("plaintiff", plaintiff_msgs, "typing..."), unsafe_allow_html=True)
             
         elif event_type == "plaintiff_done":
             content = update.get("content", "")
-            display = content.replace('<', '&lt;').replace('>', '&gt;').replace('\n', '<br>')
-            plaintiff_placeholder.markdown(f'''
-            <div class="counsel-message plaintiff-message">
-                <div class="message-sender">ATTORNEY CHEN (Plaintiff)</div>
-                {display}
-                <div class="message-time">⏱ {time.strftime("%H:%M:%S")}</div>
-            </div>
-            ''', unsafe_allow_html=True)
+            # Update with full content being streamed (simulated final update)
+            plaintiff_msgs = [m for m in orch.get_transcript() if m.get('agent_type') == 'plaintiff']
+            # Note: The content isn't in transcript yet? The orchestrator usually adds it. 
+            # If orchestrator yielded "done", it likely added it. Let's check orchestrator logic.
+            # Assuming it's added, we just re-render. If not, we pass content as streaming.
+            # Actually, run_autonomous_debate yields "done" with content, but doesn't explicitly say if added.
+            # Looking at trial.py: it adds to transcript before yielding "done" usually.
+            
+            # Let's assume it IS added. So we render history.
+            # Just in case, let's re-fetch.
+            plaintiff_placeholder.markdown(render_counsel_box("plaintiff", [m for m in orch.get_transcript() if m.get('agent_type') == 'plaintiff']), unsafe_allow_html=True)
             
         elif event_type == "defense_speaking":
             status_container.markdown("🔵 **Defense responding...**")
+            defense_msgs = [m for m in orch.get_transcript() if m.get('agent_type') == 'defense']
+            defense_placeholder.markdown(render_counsel_box("defense", defense_msgs, "typing..."), unsafe_allow_html=True)
             
         elif event_type == "defense_done":
-            content = update.get("content", "")
-            display = content.replace('<', '&lt;').replace('>', '&gt;').replace('\n', '<br>')
-            defense_placeholder.markdown(f'''
-            <div class="counsel-message defense-message">
-                <div class="message-sender">ATTORNEY WEBB (Defense)</div>
-                {display}
-                <div class="message-time">⏱ {time.strftime("%H:%M:%S")}</div>
-            </div>
-            ''', unsafe_allow_html=True)
+            defense_placeholder.markdown(render_counsel_box("defense", [m for m in orch.get_transcript() if m.get('agent_type') == 'defense']), unsafe_allow_html=True)
+            
+        # Optional: Handle streaming chunks if the generator yields them (currently it yields blocks)
+        # If we wanted char-by-char, we'd need the generator to yield chunks. 
+        # The current implementation of run_autonomous_debate seems to yield whole messages or states.
+        # If it yields "speaking" with chunks, we'd update here. 
+        # But based on previous code, it just said "plaintiff_speaking" then "plaintiff_done".
+        # So "streaming" might just be "typing..." for now unless we change orchestrator.
             
         elif event_type == "round_complete":
             round_num = update.get("round", 1)
@@ -727,40 +735,8 @@ def main():
     # Plaintiff Table
     with col_plaintiff:
         plaintiff_msgs = [m for m in orch.get_transcript() if m.get('agent_type') == 'plaintiff']
-        
-        # Build history HTML (all messages as cards inside the box)
-        history_html = ""
-        if plaintiff_msgs:
-            for idx, msg in enumerate(plaintiff_msgs):
-                content = msg.get('content', '')
-                # Escape first, then add HTML formatting
-                escaped_content = content.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-                preview = escaped_content[:80] + "..." if len(escaped_content) > 80 else escaped_content
-                preview = preview.replace('\n', ' ')
-                full_content = escaped_content.replace('\n', '<br>')
-                round_label = f"Round {idx + 1}"
-                
-                history_html += f'''
-                <details class="argument-card plaintiff-card">
-                    <summary>📜 {round_label}: {preview}</summary>
-                    <div class="argument-full">{full_content}</div>
-                </details>
-                '''
-        
-        # Render complete box with history inside
-        placeholder_msg = '<div style="color: #64748b; font-style: italic; padding: 1rem; text-align: center;">Awaiting opening statements...</div>' if not plaintiff_msgs else ""
-        
-        st.markdown(f'''
-        <div class="counsel-table plaintiff-table">
-            <div class="plaintiff-header">🔴 Plaintiff Counsel</div>
-            <div class="message-card-list">
-                {history_html if history_html else placeholder_msg}
-            </div>
-        </div>
-        ''', unsafe_allow_html=True)
-
-        # Placeholder for streaming current argument (below the box)
         plaintiff_stream_placeholder = st.empty()
+        plaintiff_stream_placeholder.markdown(render_counsel_box("plaintiff", plaintiff_msgs), unsafe_allow_html=True)
 
     # Evidence Stand
     with col_evidence:
@@ -794,40 +770,8 @@ def main():
     # Defense Table
     with col_defense:
         defense_msgs = [m for m in orch.get_transcript() if m.get('agent_type') == 'defense']
-        
-        # Build history HTML (all messages as cards inside the box)
-        history_html = ""
-        if defense_msgs:
-            for idx, msg in enumerate(defense_msgs):
-                content = msg.get('content', '')
-                # Escape first, then add HTML formatting
-                escaped_content = content.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-                preview = escaped_content[:80] + "..." if len(escaped_content) > 80 else escaped_content
-                preview = preview.replace('\n', ' ')
-                full_content = escaped_content.replace('\n', '<br>')
-                round_label = f"Round {idx + 1}"
-                
-                history_html += f'''
-                <details class="argument-card defense-card">
-                    <summary>📜 {round_label}: {preview}</summary>
-                    <div class="argument-full">{full_content}</div>
-                </details>
-                '''
-        
-        # Render complete box with history inside
-        placeholder_msg = '<div style="color: #64748b; font-style: italic; padding: 1rem; text-align: center;">Awaiting opening statements...</div>' if not defense_msgs else ""
-        
-        st.markdown(f'''
-        <div class="counsel-table defense-table">
-            <div class="defense-header">Defense Counsel 🔵</div>
-            <div class="message-card-list">
-                {history_html if history_html else placeholder_msg}
-            </div>
-        </div>
-        ''', unsafe_allow_html=True)
-
-        # Placeholder for streaming current argument (below the box)
         defense_stream_placeholder = st.empty()
+        defense_stream_placeholder.markdown(render_counsel_box("defense", defense_msgs), unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════════════════
     # ZONE D: JURY BOX (with expandable juror tabs)

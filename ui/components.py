@@ -744,3 +744,76 @@ def render_judge_box_header():
 def get_juror_emoji(name: str) -> str:
     """Get emoji for a juror by name."""
     return JUROR_EMOJI_MAP.get(name, "👤")
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# FULL COUNSEL BOX RENDERER
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def render_counsel_box(side: str, messages: list, streaming_content: str = None) -> str:
+    """
+    Render the complete counsel box HTML including header, history cards, and streaming area.
+    This ensures all content stays visually contained within the bordered box.
+    """
+    if side == "plaintiff":
+        header_html = '<div class="plaintiff-header">🔴 Plaintiff Counsel</div>'
+        box_class = "counsel-table plaintiff-table"
+        card_class = "argument-card plaintiff-card"
+        agent_name = "ATTORNEY CHEN (Plaintiff)"
+    else:
+        header_html = '<div class="defense-header">Defense Counsel 🔵</div>'
+        box_class = "counsel-table defense-table"
+        card_class = "argument-card defense-card"
+        agent_name = "ATTORNEY WEBB (Defense)"
+        
+    # 1. Build History HTML
+    history_items = []
+    if messages:
+        for idx, msg in enumerate(messages):
+            content = msg.get('content', '')
+            
+            # Escape HTML
+            escaped_content = content.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
+            
+            # Create preview (first 80 chars)
+            preview = escaped_content[:80].replace('\n', ' ') + "..." if len(escaped_content) > 80 else escaped_content.replace('\n', ' ')
+            
+            # Full content with BRs
+            full_content = escaped_content.replace('\n', '<br>')
+            round_label = f"Round {idx + 1}"
+            
+            # item_html: flush left
+            item_html = f'''
+<details class="{card_class}">
+<summary>📜 {round_label}: {preview}</summary>
+<div class="argument-full">{full_content}</div>
+</details>'''
+            history_items.append(item_html)
+            
+    history_html = "\n".join(history_items)
+            
+    # 2. Build Streaming/Latest HTML
+    streaming_html = ""
+    if streaming_content:
+        # Active streaming
+        import time
+        escaped_stream = streaming_content.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('\n', '<br>')
+        streaming_html = f'''
+<div class="counsel-message {side}-message" style="margin-top: 1rem; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 1rem;">
+<div class="message-sender">{agent_name} (Streaming...)</div>
+<div class="streaming-text">{escaped_stream}</div>
+</div>'''
+    elif not messages:
+        # Empty state
+        streaming_html = '<div style="color: #64748b; font-style: italic; padding: 2rem; text-align: center;">Awaiting opening statements...</div>'
+        
+    return f'''
+<div class="{box_class}" style="min-height: 400px; display: flex; flex-direction: column;">
+{header_html}
+<div class="message-card-list" style="flex: 1; overflow-y: auto; max-height: 300px;">
+{history_html}
+</div>
+<div class="streaming-area">
+{streaming_html}
+</div>
+</div>'''
