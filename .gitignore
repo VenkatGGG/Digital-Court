@@ -1,0 +1,29 @@
+# Environment files (contain secrets)
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ChromaDB local storage
+judge_db/
+data/judge_db/
+
+# Generated files
+trial_transcript.json
+*.xml
+
+# OS files
+.DS_Store
+Thumbs.db
