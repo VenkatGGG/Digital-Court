@@ -726,50 +726,39 @@ def main():
 
     # Plaintiff Table
     with col_plaintiff:
-        st.markdown('''
-        <div class="counsel-table plaintiff-table">
-            <div class="plaintiff-header">🔴 Plaintiff Counsel</div>
-        ''', unsafe_allow_html=True)
-
         plaintiff_msgs = [m for m in orch.get_transcript() if m.get('agent_type') == 'plaintiff']
-
-        # History as expandable mini-cards (all except the latest)
-        if len(plaintiff_msgs) > 1:
-            st.markdown('<div class="message-card-list">', unsafe_allow_html=True)
-            for idx, msg in enumerate(plaintiff_msgs[:-1]):  # All except last
+        
+        # Build history HTML (all messages as cards inside the box)
+        history_html = ""
+        if plaintiff_msgs:
+            for idx, msg in enumerate(plaintiff_msgs):
                 content = msg.get('content', '')
-                preview = content[:60] + "..." if len(content) > 60 else content
+                preview = content[:80] + "..." if len(content) > 80 else content
                 preview = preview.replace('<', '&lt;').replace('>', '&gt;').replace('\n', ' ')
+                full_content = content.replace('<', '&lt;').replace('>', '&gt;').replace('\n', '<br>')
                 round_label = f"Round {idx + 1}"
                 
-                with st.expander(f"📜 {round_label}: {preview}"):
-                    st.markdown(content)
-            st.markdown('</div>', unsafe_allow_html=True)
+                history_html += f'''
+                <details class="argument-card plaintiff-card">
+                    <summary>📜 {round_label}: {preview}</summary>
+                    <div class="argument-full">{full_content}</div>
+                </details>
+                '''
         
-        # Latest argument displayed in full (or placeholder)
-        if plaintiff_msgs:
-            latest = plaintiff_msgs[-1]
-            content = latest.get('content', '')
-            display_content = content.replace('<', '&lt;').replace('>', '&gt;').replace('\n', '<br>')
-            
-            st.markdown(f'''
-            <div class="counsel-message plaintiff-message" style="margin-top: 0.5rem;">
-                <div class="message-sender">{latest.get('agent_name', '')} (Latest)</div>
-                {display_content}
-                <div class="message-time">⏱ {latest.get('timestamp', '')}</div>
+        # Render complete box with history inside
+        placeholder_msg = '<div style="color: #64748b; font-style: italic; padding: 1rem; text-align: center;">Awaiting opening statements...</div>' if not plaintiff_msgs else ""
+        
+        st.markdown(f'''
+        <div class="counsel-table plaintiff-table">
+            <div class="plaintiff-header">🔴 Plaintiff Counsel</div>
+            <div class="message-card-list">
+                {history_html if history_html else placeholder_msg}
             </div>
-            ''', unsafe_allow_html=True)
-        else:
-            st.markdown('''
-            <div style="color: #64748b; font-style: italic; padding: 1rem; text-align: center;">
-                Awaiting opening statements...
-            </div>
-            ''', unsafe_allow_html=True)
+        </div>
+        ''', unsafe_allow_html=True)
 
-        # Placeholder for streaming current argument
+        # Placeholder for streaming current argument (below the box)
         plaintiff_stream_placeholder = st.empty()
-
-        st.markdown('</div>', unsafe_allow_html=True)
 
     # Evidence Stand
     with col_evidence:
@@ -802,50 +791,39 @@ def main():
 
     # Defense Table
     with col_defense:
-        st.markdown('''
-        <div class="counsel-table defense-table">
-            <div class="defense-header">Defense Counsel 🔵</div>
-        ''', unsafe_allow_html=True)
-
         defense_msgs = [m for m in orch.get_transcript() if m.get('agent_type') == 'defense']
-
-        # History as expandable mini-cards (all except the latest)
-        if len(defense_msgs) > 1:
-            st.markdown('<div class="message-card-list">', unsafe_allow_html=True)
-            for idx, msg in enumerate(defense_msgs[:-1]):  # All except last
+        
+        # Build history HTML (all messages as cards inside the box)
+        history_html = ""
+        if defense_msgs:
+            for idx, msg in enumerate(defense_msgs):
                 content = msg.get('content', '')
-                preview = content[:60] + "..." if len(content) > 60 else content
+                preview = content[:80] + "..." if len(content) > 80 else content
                 preview = preview.replace('<', '&lt;').replace('>', '&gt;').replace('\n', ' ')
+                full_content = content.replace('<', '&lt;').replace('>', '&gt;').replace('\n', '<br>')
                 round_label = f"Round {idx + 1}"
                 
-                with st.expander(f"📜 {round_label}: {preview}"):
-                    st.markdown(content)
-            st.markdown('</div>', unsafe_allow_html=True)
+                history_html += f'''
+                <details class="argument-card defense-card">
+                    <summary>📜 {round_label}: {preview}</summary>
+                    <div class="argument-full">{full_content}</div>
+                </details>
+                '''
         
-        # Latest argument displayed in full (or placeholder)
-        if defense_msgs:
-            latest = defense_msgs[-1]
-            content = latest.get('content', '')
-            display_content = content.replace('<', '&lt;').replace('>', '&gt;').replace('\n', '<br>')
-            
-            st.markdown(f'''
-            <div class="counsel-message defense-message" style="margin-top: 0.5rem;">
-                <div class="message-sender">{latest.get('agent_name', '')} (Latest)</div>
-                {display_content}
-                <div class="message-time">⏱ {latest.get('timestamp', '')}</div>
+        # Render complete box with history inside
+        placeholder_msg = '<div style="color: #64748b; font-style: italic; padding: 1rem; text-align: center;">Awaiting opening statements...</div>' if not defense_msgs else ""
+        
+        st.markdown(f'''
+        <div class="counsel-table defense-table">
+            <div class="defense-header">Defense Counsel 🔵</div>
+            <div class="message-card-list">
+                {history_html if history_html else placeholder_msg}
             </div>
-            ''', unsafe_allow_html=True)
-        else:
-            st.markdown('''
-            <div style="color: #64748b; font-style: italic; padding: 1rem; text-align: center;">
-                Awaiting opening statements...
-            </div>
-            ''', unsafe_allow_html=True)
+        </div>
+        ''', unsafe_allow_html=True)
 
-        # Placeholder for streaming current argument
+        # Placeholder for streaming current argument (below the box)
         defense_stream_placeholder = st.empty()
-
-        st.markdown('</div>', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════════════════
     # ZONE D: JURY BOX (with expandable juror tabs)

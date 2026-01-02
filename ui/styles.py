@@ -918,6 +918,65 @@ def get_css() -> str:
         border-left: 3px solid var(--jury-neutral);
     }
 
+    /* Argument Card using HTML details/summary (no Material Icons needed) */
+    .argument-card {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid var(--border-subtle);
+        border-radius: 4px;
+        margin-bottom: 0.4rem;
+        overflow: hidden;
+    }
+
+    .argument-card summary {
+        padding: 0.6rem 0.8rem;
+        cursor: pointer;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        list-style: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s ease;
+    }
+
+    .argument-card summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .argument-card summary::before {
+        content: '▶';
+        font-size: 0.7rem;
+        transition: transform 0.2s ease;
+    }
+
+    .argument-card[open] summary::before {
+        transform: rotate(90deg);
+    }
+
+    .argument-card summary:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-primary);
+    }
+
+    .argument-card.plaintiff-card {
+        border-left: 3px solid var(--plaintiff-crimson);
+    }
+
+    .argument-card.defense-card {
+        border-left: 3px solid var(--defense-navy);
+    }
+
+    .argument-full {
+        padding: 0.8rem;
+        background: rgba(0, 0, 0, 0.2);
+        border-top: 1px solid var(--border-subtle);
+        font-size: 0.85rem;
+        line-height: 1.5;
+        color: var(--text-primary);
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
     .card-header {
         display: flex;
         justify-content: space-between;
