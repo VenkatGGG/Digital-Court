@@ -28,14 +28,14 @@ class JurorDisplay:
     thought: str  # Latest internal monologue
 
 
-# Juror emoji mapping - matches names from data/jurors.json exactly
+# Juror emoji mapping - matches names used in app.py JUROR_PERSONAS
 JUROR_EMOJI_MAP = {
-    "Margaret Chen": "👩‍🏫",           # Retired School Principal
-    "Derek 'Big D' Washington": "🔧",  # Auto Repair Shop Owner
-    "Dr. Priya Ramanathan": "👩‍🔬",    # Biomedical Researcher
-    "Thomas 'Tommy' O'Brien": "👮",    # Retired NYPD Detective
-    "Aaliyah Jackson": "👩‍💼",          # Social Media Manager
-    "Richard 'Rick' Hoffman": "📊",    # Insurance Claims Adjuster
+    "Marcus": "👷",           # Construction Foreman
+    "Elena": "👩‍🏫",           # High School Teacher
+    "Raymond": "👨‍💼",         # Retired Accountant
+    "Destiny": "👩‍⚕️",         # ER Nurse
+    "Chen": "👨‍🔬",            # Software Engineer
+    "Patricia": "👵",         # Former Judge
 }
 
 
@@ -59,26 +59,45 @@ def render_header(case_id: str = "LU-2024-00000"):
 
 def render_status_bar(phase: str, case_id: str, session_status: str = "ACTIVE"):
     """
-    Render the status bar showing current trial phase and case info.
+    Render the prominent trial status banner at top center.
 
     Args:
         phase: Current trial phase name
         case_id: Case identifier
         session_status: Session status (ACTIVE, PAUSED, etc.)
     """
+    # Determine status icon and color based on phase
+    phase_icon = "⚖️"
+    if "AWAITING" in phase:
+        phase_icon = "📋"
+    elif "OPENING" in phase:
+        phase_icon = "🎬"
+    elif "ARGUMENT" in phase:
+        phase_icon = "⚔️"
+    elif "DELIBERATION" in phase:
+        phase_icon = "🤔"
+    elif "VERDICT" in phase:
+        phase_icon = "📜"
+    elif "ADJOURNED" in phase:
+        phase_icon = "🔒"
+
+    session_icon = "🟢" if session_status == "ACTIVE" else "🟡" if session_status == "PROCESSING" else "⚪"
+
     st.markdown(f'''
-    <div class="status-bar">
-        <div class="status-item">
-            <span class="status-label">Current Phase</span>
-            <span class="status-value phase-indicator">{phase}</span>
+    <div class="trial-status-banner">
+        <div class="status-phase-main">
+            <span class="phase-icon">{phase_icon}</span>
+            <span class="phase-text">{phase}</span>
         </div>
-        <div class="status-item">
-            <span class="status-label">Case ID</span>
-            <span class="status-value">{case_id}</span>
-        </div>
-        <div class="status-item">
-            <span class="status-label">Session</span>
-            <span class="status-value">{session_status}</span>
+        <div class="status-details">
+            <div class="status-item">
+                <span class="status-label">Case</span>
+                <span class="status-value">{case_id}</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Status</span>
+                <span class="status-value">{session_icon} {session_status}</span>
+            </div>
         </div>
     </div>
     ''', unsafe_allow_html=True)

@@ -131,6 +131,54 @@ def get_css() -> str:
         margin-bottom: 1.5rem !important;
     }
 
+    /* Prominent Trial Status Banner */
+    .trial-status-banner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem 2rem;
+        background: linear-gradient(180deg, rgba(197, 160, 89, 0.15), rgba(197, 160, 89, 0.05));
+        border: 2px solid var(--judge-gold-dim);
+        border-radius: 8px;
+        margin: 0 auto 1.5rem auto;
+        max-width: 600px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 40px var(--judge-gold-glow);
+        animation: status-glow 3s ease-in-out infinite;
+    }
+
+    @keyframes status-glow {
+        0%, 100% { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 30px var(--judge-gold-glow); }
+        50% { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 50px var(--judge-gold-glow); }
+    }
+
+    .status-phase-main {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .phase-icon {
+        font-size: 1.5rem;
+        animation: phase-pulse 2s ease-in-out infinite;
+    }
+
+    .phase-text {
+        font-family: 'Orbitron', monospace !important;
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--judge-gold);
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        text-shadow: 0 0 20px var(--judge-gold-glow);
+    }
+
+    .status-details {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+    }
+
     .status-bar {
         display: flex;
         justify-content: center;
@@ -145,25 +193,25 @@ def get_css() -> str:
     .status-item {
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 0.5rem;
     }
 
     .status-label {
         font-family: 'JetBrains Mono', monospace !important;
-        font-size: 0.7rem;
+        font-size: 0.65rem;
         color: var(--text-dim);
         text-transform: uppercase;
-        letter-spacing: 0.15em;
+        letter-spacing: 0.1em;
     }
 
     .status-value {
         font-family: 'Orbitron', monospace !important;
-        font-size: 0.85rem;
-        color: var(--judge-gold);
-        font-weight: 600;
-        padding: 0.25rem 0.75rem;
-        background: rgba(197, 160, 89, 0.1);
-        border: 1px solid rgba(197, 160, 89, 0.3);
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        font-weight: 500;
+        padding: 0.2rem 0.5rem;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid var(--border-subtle);
         border-radius: 2px;
     }
 
@@ -723,6 +771,33 @@ def get_css() -> str:
         color: var(--judge-gold) !important;
         margin-bottom: 1rem !important;
         letter-spacing: 0.15em !important;
+    }
+
+    /* Sidebar collapse button (three dots) - make it white */
+    button[data-testid="stSidebarCollapseButton"],
+    button[data-testid="baseButton-header"],
+    [data-testid="stSidebar"] button[kind="header"],
+    [data-testid="collapsedControl"] button {
+        color: white !important;
+    }
+
+    button[data-testid="stSidebarCollapseButton"] svg,
+    button[data-testid="baseButton-header"] svg,
+    [data-testid="stSidebar"] button[kind="header"] svg,
+    [data-testid="collapsedControl"] button svg {
+        fill: white !important;
+        stroke: white !important;
+    }
+
+    /* Collapsed sidebar expand button */
+    [data-testid="collapsedControl"] {
+        background: var(--slate-dark) !important;
+        border: 1px solid var(--border-subtle) !important;
+    }
+
+    [data-testid="collapsedControl"]:hover {
+        background: var(--slate-mid) !important;
+        border-color: var(--judge-gold-dim) !important;
     }
 
     /* Dividers */

@@ -100,11 +100,16 @@ MOCK_JUROR_DATA = [
 
 settings = get_settings()
 
+# Determine initial sidebar state based on whether trial has started
+_sidebar_state = "expanded"
+if hasattr(st, 'session_state') and st.session_state.get('trial_started', False):
+    _sidebar_state = "collapsed"
+
 st.set_page_config(
     page_title="LEX UMBRA | Autonomous Judicial Simulation",
     page_icon="⚖️",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state=_sidebar_state
 )
 
 # Apply CSS
@@ -133,6 +138,8 @@ def init_session_state():
         st.session_state.demo_jurors = [j.copy() for j in MOCK_JUROR_DATA]
     if "expanded_message" not in st.session_state:
         st.session_state.expanded_message = None
+    if "trial_started" not in st.session_state:
+        st.session_state.trial_started = False
 
 
 def add_message(orch, agent_type: str, agent_name: str, content: str, score=None) -> dict:
@@ -545,7 +552,7 @@ def update_judge_bench(placeholder, content: str):
 
     placeholder.markdown(f'''
     <div class="judge-bench glow-effect">
-        <div class="judge-header">The Honorable Court Presiding</div>
+        <div class="judge-header">⚖️ The Honorable Court Presiding</div>
         <div class="judge-content">
             {formatted}
         </div>
@@ -567,7 +574,7 @@ def render_demo_mode():
     # Judge's Bench
     st.markdown('''
     <div class="judge-bench glow-effect">
-        <div class="judge-header">The Honorable Court Presiding</div>
+        <div class="judge-header">⚖️ The Honorable Court Presiding</div>
         <div class="judge-content">
             <strong>COURT IS IN SESSION</strong><br><br>
             <em>The jury is reminded that they must evaluate evidence based solely on what is presented in this courtroom.
@@ -582,7 +589,7 @@ def render_demo_mode():
     with col_plaintiff:
         st.markdown('''
         <div class="counsel-table plaintiff-table">
-            <div class="plaintiff-header">Plaintiff Counsel</div>
+            <div class="plaintiff-header">🔴 Plaintiff Counsel</div>
         ''', unsafe_allow_html=True)
 
         for msg in MOCK_PLAINTIFF_MESSAGES:
@@ -599,7 +606,7 @@ def render_demo_mode():
     with col_evidence:
         st.markdown('''
         <div class="evidence-stand">
-            <div class="evidence-header">📋 Evidence Stand</div>
+            <div class="evidence-header">📁 Evidence Stand</div>
         ''', unsafe_allow_html=True)
 
         render_case_title("Meridian Corp v. Sullivan")
@@ -615,7 +622,7 @@ def render_demo_mode():
     with col_defense:
         st.markdown('''
         <div class="counsel-table defense-table">
-            <div class="defense-header">Defense Counsel</div>
+            <div class="defense-header">Defense Counsel 🔵</div>
         ''', unsafe_allow_html=True)
 
         for msg in MOCK_DEFENSE_MESSAGES:
@@ -742,7 +749,7 @@ def main():
     with col_evidence:
         st.markdown('''
         <div class="evidence-stand">
-            <div class="evidence-header">📋 Evidence Stand</div>
+            <div class="evidence-header">📁 Evidence Stand</div>
         ''', unsafe_allow_html=True)
 
         if orch.case_facts:
@@ -779,37 +786,72 @@ def main():
     if orch.jury and orch.jury.size > 0:
         jury_scores = orch.jury.get_scores()
         juror_personas = build_juror_personas(orch)
-        
-        # First render the visual jury box
+
+        # First render the visual jury box with emojis
         render_jury_box_from_scores(jury_scores, juror_personas)
-        
+
         # Then add expandable tabs for each juror's full thoughts
-        st.markdown("#### 👥 Juror Deliberations (Click to expand)")
-        juror_tabs = st.tabs([f"{JUROR_EMOJI_MAP.get(name, '👤')} {name.split()[0]}" for name in jury_scores.keys()])
-        
+        st.markdown("#### 👥 Juror Deliberations")
+        st.caption("Click on a juror to see their full thought process")
+
+        # Create tab labels with emojis from JUROR_PERSONAS (which matches actual names)
+        tab_labels = []
+        for name in jury_scores.keys():
+            persona_info = JUROR_PERSONAS.get(name, {"emoji": "👤"})
+            emoji = persona_info.get("emoji", "👤")
+            tab_labels.append(f"{emoji} {name}")
+
+        juror_tabs = st.tabs(tab_labels)
+
         for idx, (name, score) in enumerate(jury_scores.items()):
             with juror_tabs[idx]:
                 persona = juror_personas.get(name, {})
-                occupation = persona.get("occupation", "Juror")
-                thought = persona.get("thought", "No thoughts recorded")
-                emoji = JUROR_EMOJI_MAP.get(name, "👤")
-                
+                persona_info = JUROR_PERSONAS.get(name, {"emoji": "👤", "occupation": "Juror"})
+                occupation = persona_info.get("occupation", persona.get("occupation", "Juror"))
+                thought = persona.get("thought", "No thoughts recorded yet...")
+                emoji = persona_info.get("emoji", "👤")
+
                 # Leaning indicator (50 is the threshold)
-                if score > 50:
-                    leaning = "🔴 Favors Plaintiff"
+                if score > 55:
+                    leaning = "🔴 Leans Plaintiff"
+                    leaning_color = "#8B0000"
+                elif score < 45:
+                    leaning = "🔵 Leans Defense"
+                    leaning_color = "#000080"
                 else:
-                    leaning = "🔵 Favors Defense"
-                
-                col1, col2 = st.columns([2, 1])
+                    leaning = "⚪ Undecided"
+                    leaning_color = "#4a5568"
+
+                # Juror card header
+                st.markdown(f'''
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                    <span style="font-size: 2.5rem;">{emoji}</span>
+                    <div>
+                        <div style="font-family: 'Orbitron', monospace; font-size: 1rem; color: #e2e8f0;">{name}</div>
+                        <div style="font-size: 0.8rem; color: #64748b;">{occupation}</div>
+                    </div>
+                </div>
+                ''', unsafe_allow_html=True)
+
+                # Score display
+                col1, col2 = st.columns([1, 1])
                 with col1:
-                    st.markdown(f"**{emoji} {name}**")
-                    st.caption(occupation)
+                    st.metric("Bias Score", f"{score}/100")
                 with col2:
-                    st.metric("Score", f"{score}/100", leaning)
-                
+                    st.markdown(f'''
+                    <div style="padding: 0.5rem; background: rgba(0,0,0,0.3); border-left: 3px solid {leaning_color}; border-radius: 4px;">
+                        <div style="font-size: 0.75rem; color: #94a3b8;">Current Leaning</div>
+                        <div style="font-size: 0.9rem; color: #e2e8f0;">{leaning}</div>
+                    </div>
+                    ''', unsafe_allow_html=True)
+
                 st.markdown("---")
-                st.markdown("**Full Thought Process:**")
-                st.markdown(f"*{thought}*")
+                st.markdown("**💭 Internal Deliberation:**")
+                st.markdown(f'''
+                <div style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 4px; font-style: italic; color: #94a3b8; line-height: 1.6;">
+                    {thought}
+                </div>
+                ''', unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════════════════
     # COURT PROCEEDINGS (Full Transcript)
@@ -897,6 +939,7 @@ def main():
                 if st.button("🤖 Auto Trial", disabled=is_processing, use_container_width=True, help="Agents debate automatically"):
                     st.session_state.is_processing = True
                     st.session_state.pending_action = "autonomous"
+                    st.session_state.trial_started = True
                     st.rerun()
 
         elif phase == TrialPhase.ARGUMENTS:
@@ -927,6 +970,7 @@ def main():
                     st.session_state.upload_processed = False
                     st.session_state.is_processing = False
                     st.session_state.juror_thoughts = {}
+                    st.session_state.trial_started = False
                     st.session_state.case_id = f"LU-{time.strftime('%Y')}-{hash(time.time()) % 100000:05d}"
                     if "pending_action" in st.session_state:
                         del st.session_state.pending_action
