@@ -1,8 +1,8 @@
 """
-ui/components.py - LEX UMBRA Courtroom Components
+ui/components.py - JUSTICIA EX MACHINA Component Library
 
-Reusable UI components for the cyber-noir judicial interface.
-Implements the spatial courtroom metaphor with distinct zones.
+Refined, minimal components for the judicial simulation interface.
+Embodies the tension between ancient judicial tradition and computational precision.
 """
 
 import re
@@ -22,108 +22,80 @@ class JurorDisplay:
     """Data class for juror display information."""
     id: int
     name: str
-    emoji: str
     occupation: str
     score: int  # 0-100 sentiment score
     thought: str  # Latest internal monologue
 
 
-# Juror emoji mapping - matches names used in app.py JUROR_PERSONAS
+# Juror persona data - now without emojis, just names and roles
+JUROR_DATA = {
+    "Marcus": {"occupation": "Construction Foreman"},
+    "Elena": {"occupation": "High School Teacher"},
+    "Raymond": {"occupation": "Retired Accountant"},
+    "Destiny": {"occupation": "Emergency Room Nurse"},
+    "Chen": {"occupation": "Software Engineer"},
+    "Patricia": {"occupation": "Former Judge"},
+}
+
+# Legacy mapping for backward compatibility
 JUROR_EMOJI_MAP = {
-    "Marcus": "👷",           # Construction Foreman
-    "Elena": "👩‍🏫",           # High School Teacher
-    "Raymond": "👨‍💼",         # Retired Accountant
-    "Destiny": "👩‍⚕️",         # ER Nurse
-    "Chen": "👨‍🔬",            # Software Engineer
-    "Patricia": "👵",         # Former Judge
+    "Marcus": "I",
+    "Elena": "II",
+    "Raymond": "III",
+    "Destiny": "IV",
+    "Chen": "V",
+    "Patricia": "VI",
 }
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# ZONE A: HEADER COMPONENTS
+# HEADER COMPONENTS
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def render_header(case_id: str = "LU-2024-00000"):
-    """
-    Render Zone A: The application header with title and status bar.
-
-    Args:
-        case_id: The current case identifier
-    """
-    st.markdown('<h1 class="main-title">LEX UMBRA</h1>', unsafe_allow_html=True)
-    st.markdown(
-        '<p class="main-subtitle">Autonomous Judicial Simulation</p>',
-        unsafe_allow_html=True
-    )
+def render_header(case_id: str = ""):
+    """Render the court header with refined typography."""
+    st.markdown('''
+    <div class="court-header">
+        <h1 class="court-title">Justicia Ex Machina</h1>
+        <p class="court-subtitle">Autonomous Judicial Simulation</p>
+    </div>
+    ''', unsafe_allow_html=True)
 
 
 def render_status_bar(phase: str, case_id: str, session_status: str = "ACTIVE"):
-    """
-    Render the prominent trial status banner at top center.
-
-    Args:
-        phase: Current trial phase name
-        case_id: Case identifier
-        session_status: Session status (ACTIVE, PAUSED, etc.)
-    """
-    # Determine status icon and color based on phase
-    phase_icon = "⚖️"
-    if "AWAITING" in phase:
-        phase_icon = "📋"
-    elif "OPENING" in phase:
-        phase_icon = "🎬"
-    elif "ARGUMENT" in phase:
-        phase_icon = "⚔️"
-    elif "DELIBERATION" in phase:
-        phase_icon = "🤔"
-    elif "VERDICT" in phase:
-        phase_icon = "📜"
-    elif "ADJOURNED" in phase:
-        phase_icon = "🔒"
-
-    session_icon = "🟢" if session_status == "ACTIVE" else "🟡" if session_status == "PROCESSING" else "⚪"
-
+    """Render the minimal status indicator."""
     st.markdown(f'''
-    <div class="trial-status-banner">
-        <div class="status-phase-main">
-            <span class="phase-icon">{phase_icon}</span>
-            <span class="phase-text">{phase}</span>
+    <div class="trial-status">
+        <div class="status-segment">
+            <span class="status-label">Phase</span>
+            <span class="status-value">{phase}</span>
         </div>
-        <div class="status-details">
-            <div class="status-item">
-                <span class="status-label">Case</span>
-                <span class="status-value">{case_id}</span>
-            </div>
-            <div class="status-item">
-                <span class="status-label">Status</span>
-                <span class="status-value">{session_icon} {session_status}</span>
-            </div>
+        <div class="status-divider"></div>
+        <div class="status-segment">
+            <span class="status-label">Case</span>
+            <span class="status-value">{case_id}</span>
+        </div>
+        <div class="status-divider"></div>
+        <div class="status-segment">
+            <span class="status-label">Status</span>
+            <span class="status-value">{session_status}</span>
         </div>
     </div>
     ''', unsafe_allow_html=True)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# ZONE B: JUDGE'S BENCH COMPONENTS
+# JUDGE'S BENCH COMPONENTS
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def render_judge_bench(instruction: str, glow: bool = True):
-    """
-    Render Zone B: The Judge's Bench - dominant authority display.
-
-    Args:
-        instruction: Current judge instruction/statement
-        glow: Whether to apply the animated glow effect
-    """
-    glow_class = "glow-effect" if glow else ""
-
-    # Convert markdown formatting
+def render_judge_bench(instruction: str, glow: bool = False):
+    """Render the Judge's Bench with refined styling."""
     formatted = format_content(instruction)
 
     st.markdown(f'''
-    <div class="judge-bench {glow_class}">
-        <div class="judge-header">The Honorable Court Presiding</div>
-        <div class="judge-content">
+    <div class="bench">
+        <div class="bench-label">The Court</div>
+        <div class="bench-content">
             {formatted}
         </div>
     </div>
@@ -131,21 +103,14 @@ def render_judge_bench(instruction: str, glow: bool = True):
 
 
 def render_judge_instruction_streaming(placeholder, content: str, is_streaming: bool = True):
-    """
-    Render judge instruction with streaming cursor effect.
-
-    Args:
-        placeholder: Streamlit placeholder to update
-        content: Current content
-        is_streaming: Whether still streaming
-    """
-    cursor = '<span class="typing-indicator">▌</span>' if is_streaming else ""
+    """Render judge instruction with minimal streaming indicator."""
+    cursor = '<span class="typing-cursor"></span>' if is_streaming else ""
     formatted = format_content(content)
 
     placeholder.markdown(f'''
-    <div class="judge-bench pulse-border">
-        <div class="judge-header">The Honorable Court Presiding</div>
-        <div class="judge-content">
+    <div class="bench">
+        <div class="bench-label">The Court</div>
+        <div class="bench-content">
             {formatted}{cursor}
         </div>
     </div>
@@ -153,58 +118,106 @@ def render_judge_instruction_streaming(placeholder, content: str, is_streaming: 
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# ZONE C: COUNSEL TABLE COMPONENTS
+# COUNSEL BOX COMPONENTS
 # ═══════════════════════════════════════════════════════════════════════════════
 
+def render_counsel_box(side: str, messages: list, streaming_content: str = None) -> str:
+    """
+    Render the complete counsel box with history and streaming area.
+    Returns HTML string for the box.
+    """
+    if side == "plaintiff":
+        header_class = "counsel-header counsel-header-plaintiff"
+        box_class = "counsel-box counsel-box-plaintiff"
+        collapse_class = "argument-collapse argument-collapse-plaintiff"
+        header_text = "Plaintiff"
+    else:
+        header_class = "counsel-header counsel-header-defense"
+        box_class = "counsel-box counsel-box-defense"
+        collapse_class = "argument-collapse argument-collapse-defense"
+        header_text = "Defense"
+
+    # Build argument history
+    history_html = ""
+    if messages:
+        for idx, msg in enumerate(messages):
+            content = msg.get('content', '')
+            escaped = escape_html(content)
+
+            # Preview: first 100 chars
+            preview = escaped[:100].replace('\n', ' ')
+            if len(escaped) > 100:
+                preview += "..."
+
+            # Full content with line breaks
+            full_content = escaped.replace('\n', '<br>')
+            round_label = f"Round {idx + 1}"
+
+            history_html += f'''
+<details class="{collapse_class}">
+<summary>{round_label} &mdash; {preview}</summary>
+<div class="argument-collapse-content">{full_content}</div>
+</details>'''
+
+    # Streaming or empty state
+    streaming_html = ""
+    if streaming_content:
+        escaped_stream = escape_html(streaming_content).replace('\n', '<br>')
+        streaming_html = f'''
+<div class="argument-entry animate-in" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.04);">
+    <div class="argument-round">Speaking</div>
+    <div class="argument-text">{escaped_stream}<span class="typing-cursor"></span></div>
+</div>'''
+    elif not messages:
+        streaming_html = '<div class="counsel-empty">Awaiting statements</div>'
+
+    return f'''
+<div class="{box_class}">
+    <div class="{header_class}">{header_text}</div>
+    <div class="counsel-content">
+        {history_html}
+        {streaming_html}
+    </div>
+</div>'''
+
+
 def render_plaintiff_table_start():
-    """Render the opening HTML for plaintiff counsel table."""
+    """Render opening HTML for plaintiff box."""
     st.markdown('''
-    <div class="counsel-table plaintiff-table">
-        <div class="plaintiff-header">Plaintiff Counsel</div>
-        <div class="counsel-messages">
+    <div class="counsel-box counsel-box-plaintiff">
+        <div class="counsel-header counsel-header-plaintiff">Plaintiff</div>
+        <div class="counsel-content">
     ''', unsafe_allow_html=True)
 
 
 def render_plaintiff_table_end():
-    """Render the closing HTML for plaintiff counsel table."""
+    """Close plaintiff box."""
     st.markdown('</div></div>', unsafe_allow_html=True)
 
 
 def render_defense_table_start():
-    """Render the opening HTML for defense counsel table."""
+    """Render opening HTML for defense box."""
     st.markdown('''
-    <div class="counsel-table defense-table">
-        <div class="defense-header">Defense Counsel</div>
-        <div class="counsel-messages">
+    <div class="counsel-box counsel-box-defense">
+        <div class="counsel-header counsel-header-defense">Defense</div>
+        <div class="counsel-content">
     ''', unsafe_allow_html=True)
 
 
 def render_defense_table_end():
-    """Render the closing HTML for defense counsel table."""
+    """Close defense box."""
     st.markdown('</div></div>', unsafe_allow_html=True)
 
 
 def render_counsel_message(content: str, side: str, timestamp: str = "", sender: str = ""):
-    """
-    Render a message in the counsel table.
-
-    Args:
-        content: Message content
-        side: "plaintiff" or "defense"
-        timestamp: Optional timestamp
-        sender: Optional sender name
-    """
-    message_class = f"{side}-message"
+    """Render a single counsel message."""
     formatted = format_content(content)
 
-    sender_html = f'<div class="message-sender">{sender}</div>' if sender else ""
-    time_html = f'<div class="message-time">⏱ {timestamp}</div>' if timestamp else ""
+    entry_class = f"argument-entry argument-{side}"
 
     st.markdown(f'''
-    <div class="counsel-message {message_class} animate-in">
-        {sender_html}
-        {formatted}
-        {time_html}
+    <div class="{entry_class} animate-in">
+        <div class="argument-text">{formatted}</div>
     </div>
     ''', unsafe_allow_html=True)
 
@@ -217,186 +230,114 @@ def render_counsel_message_streaming(
     sender: str = "",
     is_streaming: bool = True
 ):
-    """
-    Render a streaming message in counsel table.
-
-    Args:
-        placeholder: Streamlit placeholder
-        content: Current content
-        side: "plaintiff" or "defense"
-        timestamp: Message timestamp
-        sender: Sender name
-        is_streaming: Whether still streaming
-    """
-    message_class = f"{side}-message"
+    """Render a streaming message."""
     formatted = format_content(content)
-    cursor = '<span class="typing-indicator">▌</span>' if is_streaming else ""
+    cursor = '<span class="typing-cursor"></span>' if is_streaming else ""
 
-    sender_html = f'<div class="message-sender">{sender}</div>' if sender else ""
-    time_html = f'<div class="message-time">⏱ {timestamp}</div>' if timestamp else ""
+    entry_class = f"argument-entry argument-{side}"
 
     placeholder.markdown(f'''
-    <div class="counsel-message {message_class}">
-        {sender_html}
-        {formatted}{cursor}
-        {time_html}
+    <div class="{entry_class}">
+        <div class="argument-text">{formatted}{cursor}</div>
     </div>
     ''', unsafe_allow_html=True)
 
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# EVIDENCE STAND COMPONENTS
+# ═══════════════════════════════════════════════════════════════════════════════
+
 def render_evidence_stand_start():
-    """Render the opening HTML for evidence stand."""
+    """Render opening HTML for evidence stand."""
     st.markdown('''
-    <div class="evidence-stand">
-        <div class="evidence-header">Evidence Stand</div>
+    <div class="evidence-box">
+        <div class="evidence-header">Evidence</div>
+        <div class="evidence-content">
     ''', unsafe_allow_html=True)
 
 
 def render_evidence_stand_end():
-    """Render the closing HTML for evidence stand."""
-    st.markdown('</div>', unsafe_allow_html=True)
+    """Close evidence stand."""
+    st.markdown('</div></div>', unsafe_allow_html=True)
 
 
 def render_evidence_content(content: str):
-    """
-    Render evidence/case facts content.
-
-    Args:
-        content: The evidence or case facts text
-    """
+    """Render evidence content."""
     formatted = format_content(content)
     st.markdown(f'''
-    <div class="evidence-content">
+    <div class="case-excerpt">
         {formatted}
     </div>
     ''', unsafe_allow_html=True)
 
 
 def render_case_title(title: str):
-    """
-    Render a case title banner.
-
-    Args:
-        title: The case title
-    """
+    """Render case title banner."""
     st.markdown(f'''
-    <div class="case-title">{escape_html(title)}</div>
+    <div class="case-title-display">{escape_html(title)}</div>
     ''', unsafe_allow_html=True)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# ZONE D: JURY BOX COMPONENTS
+# JURY BOX COMPONENTS
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def render_jury_box(jurors: List[JurorDisplay]):
-    """
-    Render Zone D: The Jury Box with individual juror cards.
+    """Render the jury section with individual juror cards."""
+    juror_cards = ""
 
-    Args:
-        jurors: List of JurorDisplay objects
-    """
-    juror_cards_html = ""
     for juror in jurors:
-        juror_cards_html += _render_juror_card_html(juror)
+        # Determine sentiment
+        sentiment_class = get_sentiment_class(juror.score)
+
+        if juror.score > 55:
+            fill_class = "sentiment-fill-plaintiff"
+            bar_width = juror.score
+            leaning_class = "leaning-plaintiff"
+            leaning_text = "Plaintiff"
+        elif juror.score < 45:
+            fill_class = "sentiment-fill-defense"
+            bar_width = 100 - juror.score
+            leaning_class = "leaning-defense"
+            leaning_text = "Defense"
+        else:
+            fill_class = ""
+            bar_width = 0
+            leaning_class = "leaning-neutral"
+            leaning_text = "Undecided"
+
+        # Clean thought text
+        thought = juror.thought
+        for prefix in ["THOUGHTS:", "Internal Monologue:", "INTERNAL MONOLOGUE:", "*"]:
+            thought = thought.replace(prefix, "").strip()
+        if len(thought) > 80:
+            thought = thought[:80] + "..."
+        thought = escape_html(thought)
+
+        # Get juror number
+        juror_num = JUROR_EMOJI_MAP.get(juror.name, str(juror.id))
+
+        juror_cards += f'''
+        <div class="juror {sentiment_class}">
+            <div class="juror-id">Juror {juror_num}</div>
+            <div class="juror-name">{escape_html(juror.name)}</div>
+            <div class="juror-role">{escape_html(juror.occupation)}</div>
+            <div class="sentiment-track">
+                <div class="sentiment-fill {fill_class}" style="width: {bar_width}%;"></div>
+            </div>
+            <div class="juror-leaning {leaning_class}">{leaning_text}</div>
+            <div class="juror-thought">{thought}</div>
+        </div>
+        '''
 
     st.markdown(f'''
-    <div class="jury-box">
-        <div class="jury-header">The Jury Box</div>
-        <div class="juror-grid">
-            {juror_cards_html}
+    <div class="jury-section">
+        <div class="jury-label">The Jury</div>
+        <div class="jury-grid">
+            {juror_cards}
         </div>
     </div>
     ''', unsafe_allow_html=True)
-
-
-def _render_juror_card_html(juror: JurorDisplay) -> str:
-    """
-    Generate HTML for a single juror card.
-
-    Args:
-        juror: JurorDisplay object
-
-    Returns:
-        HTML string for the juror card
-    """
-    # Determine leaning
-    leaning_class = get_sentiment_class(juror.score)
-
-    if juror.score > 55:
-        sentiment_class = "plaintiff-leaning"
-        bar_width = juror.score
-    elif juror.score < 45:
-        sentiment_class = "defense-leaning"
-        bar_width = 100 - juror.score
-    else:
-        sentiment_class = ""
-        bar_width = 50
-
-    # Sentiment label
-    if juror.score > 60:
-        sentiment_label = "Favors Plaintiff"
-    elif juror.score < 40:
-        sentiment_label = "Favors Defense"
-    else:
-        sentiment_label = "Undecided"
-
-    # Clean up the thought - remove internal monologue prefixes
-    thought_clean = juror.thought
-    for prefix in ["THOUGHTS:", "Internal Monologue:", "INTERNAL MONOLOGUE:", "*"]:
-        thought_clean = thought_clean.replace(prefix, "").strip()
-    
-    # Truncate if too long
-    if len(thought_clean) > 120:
-        thought_clean = thought_clean[:120] + "..."
-    
-    thought_escaped = escape_html(thought_clean)
-
-    return f'''
-    <div class="juror-card {leaning_class}">
-        <div class="juror-avatar">{juror.emoji}</div>
-        <div class="juror-name">{escape_html(juror.name)}</div>
-        <div class="juror-occupation">{escape_html(juror.occupation)}</div>
-        <div class="sentiment-container">
-            <div class="sentiment-bar-bg">
-                <div class="sentiment-bar {sentiment_class}" style="width: {bar_width}%;"></div>
-            </div>
-            <div class="sentiment-label">{sentiment_label}</div>
-        </div>
-        <div class="thought-bubble">{thought_escaped}</div>
-    </div>
-    '''
-
-
-def render_jury_panel(jury_scores: Dict[str, int], average: float, container=None):
-    """
-    Render the jury panel status display (simplified metrics view).
-
-    Args:
-        jury_scores: Dict of {juror_name: score}
-        average: Average jury score
-        container: Optional Streamlit container
-    """
-    target = container or st
-
-    with target:
-        st.markdown("### The Jury Box")
-
-        # Create juror grid
-        cols = st.columns(min(len(jury_scores), 6))
-        for i, (name, score) in enumerate(jury_scores.items()):
-            with cols[i % len(cols)]:
-                # Determine icon based on score
-                if score > 60:
-                    icon = "🔴"
-                elif score < 40:
-                    icon = "🔵"
-                else:
-                    icon = "⚪"
-                st.metric(f"{icon} {name}", f"{score}/100")
-
-        # Progress bar showing average
-        st.progress(average / 100)
-        st.caption(f"Average Sentiment: {average:.1f}/100 • (0 = Defense, 100 = Plaintiff)")
 
 
 def render_jury_box_from_scores(
@@ -404,37 +345,24 @@ def render_jury_box_from_scores(
     juror_personas: Optional[Dict[str, Any]] = None,
     juror_thoughts: Optional[Dict[str, str]] = None
 ):
-    """
-    Render jury box from score dictionary with dynamic emoji lookup.
-
-    Args:
-        jury_scores: Dict of {juror_name: score}
-        juror_personas: Optional dict of {juror_name: {emoji, occupation, thought}}
-        juror_thoughts: Optional dict of {juror_name: thought} (alternative format)
-    """
+    """Render jury box from score dictionary."""
     personas = juror_personas or {}
     thoughts = juror_thoughts or {}
 
     jurors = []
     for i, (name, score) in enumerate(jury_scores.items(), 1):
-        # Check if personas is in old format (dict of dicts)
         persona = personas.get(name, {})
-        
+
         if isinstance(persona, dict):
-            # Old format: {name: {emoji, occupation, thought}}
-            emoji = persona.get("emoji") or JUROR_EMOJI_MAP.get(name, "👤")
-            occupation = persona.get("occupation", "Juror")
+            occupation = persona.get("occupation", JUROR_DATA.get(name, {}).get("occupation", "Juror"))
             thought = persona.get("thought", thoughts.get(name, "Deliberating..."))
         else:
-            # New format or no persona provided
-            emoji = JUROR_EMOJI_MAP.get(name, "👤")
-            occupation = "Juror"
+            occupation = JUROR_DATA.get(name, {}).get("occupation", "Juror")
             thought = thoughts.get(name, "Deliberating...")
-        
+
         jurors.append(JurorDisplay(
             id=i,
             name=name,
-            emoji=emoji,
             occupation=occupation,
             score=score,
             thought=thought
@@ -443,43 +371,63 @@ def render_jury_box_from_scores(
     render_jury_box(jurors)
 
 
+def render_jury_panel(jury_scores: Dict[str, int], average: float, container=None):
+    """Render simplified jury panel metrics."""
+    target = container or st
+
+    with target:
+        st.markdown("### The Jury")
+
+        cols = st.columns(min(len(jury_scores), 6))
+        for i, (name, score) in enumerate(jury_scores.items()):
+            with cols[i % len(cols)]:
+                st.metric(name, f"{score}")
+
+        st.progress(average / 100)
+        st.caption(f"Average: {average:.1f} (0=Defense, 100=Plaintiff)")
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
-# LEGACY CHAT MESSAGE COMPONENTS (Backward Compatibility)
+# VERDICT COMPONENTS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def render_verdict_card(verdict: str, details: str = ""):
+    """Render the verdict announcement."""
+    details_html = f'<div class="verdict-details">{escape_html(details)}</div>' if details else ""
+
+    st.markdown(f'''
+    <div class="verdict-display">
+        <div class="verdict-label">Verdict</div>
+        <div class="verdict-text">{escape_html(verdict)}</div>
+        {details_html}
+    </div>
+    ''', unsafe_allow_html=True)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# LEGACY CHAT MESSAGE COMPONENTS
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def render_message(msg: dict, container=None):
-    """
-    Render a chat message with appropriate styling.
+    """Render a legacy chat message."""
+    agent_type = msg.get('agent_type', 'system')
+    agent_name = msg.get('agent_name', 'System')
+    content = format_content(msg.get('content', ''))
+    timestamp = msg.get('timestamp', '')
 
-    Args:
-        msg: Message dict with agent_type, agent_name, content, timestamp, score
-        container: Optional Streamlit container to render in
-    """
-    css_class = f"{msg.get('agent_type', 'system')}-msg"
-
-    # Score badge
+    # Score display
     score_html = ""
     if msg.get("score") is not None:
         score = msg["score"]
         color = get_score_color(score)
-        score_html = f'<span class="score-badge" style="color: {color};">Score: {score}/100</span>'
+        score_html = f' &mdash; Score: {score}'
 
-    # Format content
-    content = msg.get('content', '')
-    content = format_content(content)
-
-    html = f"""
-    <div class="chat-message {css_class} animate-in">
-        <div class="agent-name">{msg.get('agent_name', 'SYSTEM')} • {msg.get('timestamp', '')}{score_html}</div>
-        <div>{content}</div>
+    st.markdown(f'''
+    <div class="argument-entry animate-in" style="padding: 1rem; background: rgba(20,20,20,0.5); margin-bottom: 0.75rem;">
+        <div class="argument-round">{agent_name} &middot; {timestamp}{score_html}</div>
+        <div class="argument-text" style="text-align: left; padding-left: 0; border: none;">{content}</div>
     </div>
-    """
-
-    if container:
-        with container:
-            st.markdown(html, unsafe_allow_html=True)
-    else:
-        st.markdown(html, unsafe_allow_html=True)
+    ''', unsafe_allow_html=True)
 
 
 def render_message_streaming(
@@ -490,68 +438,21 @@ def render_message_streaming(
     is_streaming: bool = True,
     placeholder=None
 ):
-    """
-    Render a message during streaming with optional cursor.
-
-    Args:
-        agent_type: Type of agent (plaintiff, defense, etc.)
-        agent_name: Display name
-        content: Current content
-        timestamp: Message timestamp
-        is_streaming: If True, shows blinking cursor
-        placeholder: Streamlit placeholder to update
-    """
-    css_class = f"{agent_type}-msg"
+    """Render streaming message."""
     display = format_content(content)
+    cursor = '<span class="typing-cursor"></span>' if is_streaming else ""
 
-    cursor = '<span class="typing-indicator">▌</span>' if is_streaming else ""
-
-    html = f"""
-    <div class="chat-message {css_class}">
-        <div class="agent-name">{agent_name} • {timestamp}</div>
-        <div>{display}{cursor}</div>
+    html = f'''
+    <div class="argument-entry">
+        <div class="argument-round">{agent_name} &middot; {timestamp}</div>
+        <div class="argument-text" style="text-align: left; padding-left: 0; border: none;">{display}{cursor}</div>
     </div>
-    """
+    '''
 
     if placeholder:
         placeholder.markdown(html, unsafe_allow_html=True)
     else:
         st.markdown(html, unsafe_allow_html=True)
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# SPECIAL COMPONENTS
-# ═══════════════════════════════════════════════════════════════════════════════
-
-def render_verdict_card(verdict: str, details: str = ""):
-    """
-    Render the final verdict announcement card.
-
-    Args:
-        verdict: The verdict text (e.g., "PLAINTIFF PREVAILS")
-        details: Additional verdict details
-    """
-    details_html = f'<div style="margin-top: 1rem; font-size: 0.9rem; color: #94a3b8;">{escape_html(details)}</div>' if details else ""
-
-    st.markdown(f'''
-    <div class="verdict-card">
-        <div class="verdict-text">{escape_html(verdict)}</div>
-        {details_html}
-    </div>
-    ''', unsafe_allow_html=True)
-
-
-def render_control_panel_start(title: str = "Simulation Controls"):
-    """Render control panel header."""
-    st.markdown(f'''
-    <div class="control-panel">
-        <div class="control-header">{escape_html(title)}</div>
-    ''', unsafe_allow_html=True)
-
-
-def render_control_panel_end():
-    """Render control panel footer."""
-    st.markdown('</div>', unsafe_allow_html=True)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -567,7 +468,7 @@ def escape_html(text: str) -> str:
 
 def format_content(text: str) -> str:
     """
-    Convert basic markdown to HTML for display.
+    Convert basic markdown to HTML.
 
     Handles:
         - **bold** -> <strong>
@@ -591,13 +492,48 @@ def format_content(text: str) -> str:
 
 
 def format_markdown(text: str) -> str:
-    """Alias for format_content for backward compatibility."""
+    """Alias for format_content."""
     return format_content(text)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# MESSAGE CARDS & COLLAPSIBLE COMPONENTS
+# ADDITIONAL HELPER COMPONENTS
 # ═══════════════════════════════════════════════════════════════════════════════
+
+def render_streaming_area(content: str, side: str, is_active: bool = True):
+    """Render streaming area for active responses."""
+    formatted = format_content(content)
+    cursor = '<span class="typing-cursor"></span>' if is_active else ""
+
+    label = {
+        "plaintiff": "Plaintiff speaking",
+        "defense": "Defense speaking",
+        "judge": "Court speaking"
+    }.get(side, "Speaking")
+
+    st.markdown(f'''
+    <div class="argument-entry" style="padding: 1rem; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.04);">
+        <div class="streaming-indicator">
+            <span class="streaming-dot"></span>
+            <span>{label}</span>
+        </div>
+        <div class="argument-text" style="margin-top: 0.75rem;">{formatted}{cursor}</div>
+    </div>
+    ''', unsafe_allow_html=True)
+
+
+def render_control_panel_start(title: str = "Controls"):
+    """Render control panel header."""
+    st.markdown(f'''
+    <div style="background: #141414; border: 1px solid rgba(139,115,85,0.12); padding: 1rem; margin-top: 1rem;">
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: #4A4845; margin-bottom: 0.75rem;">{escape_html(title)}</div>
+    ''', unsafe_allow_html=True)
+
+
+def render_control_panel_end():
+    """Render control panel footer."""
+    st.markdown('</div>', unsafe_allow_html=True)
+
 
 def render_message_card(
     msg_id: str,
@@ -607,47 +543,22 @@ def render_message_card(
     side: str,
     is_active: bool = False
 ) -> str:
-    """
-    Generate HTML for a clickable message card.
-    
-    Args:
-        msg_id: Unique message identifier
-        timestamp: Message timestamp
-        label: Card label (e.g., "Opening Statement")
-        preview: Preview text (truncated)
-        side: "plaintiff", "defense", or "juror"
-        is_active: Whether this card is currently expanded
-    
-    Returns:
-        HTML string for the card
-    """
-    card_class = f"{side}-card"
-    active_class = "active" if is_active else ""
+    """Generate HTML for a clickable message card."""
+    collapse_class = f"argument-collapse argument-collapse-{side}"
     preview_clean = escape_html(preview)[:80]
     if len(preview) > 80:
         preview_clean += "..."
-    
+
     return f'''
-    <div class="message-card {card_class} {active_class}" data-msg-id="{msg_id}">
-        <div class="card-header">
-            <span class="card-label">{escape_html(label)}</span>
-            <span class="card-time">{timestamp}</span>
-        </div>
-        <div class="card-preview">{preview_clean}</div>
-        <div class="card-expand-hint">Click to expand</div>
-    </div>
+    <details class="{collapse_class}">
+        <summary>{escape_html(label)} &mdash; {preview_clean}</summary>
+        <div class="argument-collapse-content">{escape_html(preview)}</div>
+    </details>
     '''
 
 
 def render_message_card_list(messages: List[Dict], side: str, expanded_id: Optional[str] = None):
-    """
-    Render a scrollable list of message cards.
-    
-    Args:
-        messages: List of message dicts with id, timestamp, label, content
-        side: "plaintiff", "defense", or "juror"
-        expanded_id: Currently expanded message ID
-    """
+    """Render a list of message cards."""
     cards_html = ""
     for msg in messages:
         cards_html += render_message_card(
@@ -658,181 +569,54 @@ def render_message_card_list(messages: List[Dict], side: str, expanded_id: Optio
             side=side,
             is_active=(msg.get("id") == expanded_id)
         )
-    
+
     st.markdown(f'''
-    <div class="message-card-list">
+    <div style="max-height: 300px; overflow-y: auto;">
         {cards_html}
     </div>
     ''', unsafe_allow_html=True)
 
 
-def render_streaming_area(content: str, side: str, is_active: bool = True):
-    """
-    Render the streaming area for active responses.
-    
-    Args:
-        content: Current streamed content
-        side: "plaintiff", "defense", or "judge"
-        is_active: Whether streaming is active
-    """
-    active_class = "active" if is_active else ""
-    stream_class = f"{side}-stream" if side in ["plaintiff", "defense"] else ""
-    formatted = format_content(content)
-    cursor = '<span class="typing-indicator">▌</span>' if is_active else ""
-    
-    label = {
-        "plaintiff": "Plaintiff Speaking...",
-        "defense": "Defense Speaking...",
-        "judge": "Court Speaking..."
-    }.get(side, "Speaking...")
-    
-    st.markdown(f'''
-    <div class="streaming-area {active_class} {stream_class}">
-        <div class="streaming-label">{label}</div>
-        <div class="streaming-content">{formatted}{cursor}</div>
-    </div>
-    ''', unsafe_allow_html=True)
-
-
 def render_expanded_transcript(title: str, content: str, msg_id: str):
-    """
-    Render the expanded transcript view below a message card.
-    
-    Args:
-        title: Title for the expanded view
-        content: Full message content
-        msg_id: Message ID (for close button)
-    """
+    """Render expanded transcript view."""
     formatted = format_content(content)
-    
+
     st.markdown(f'''
-    <div class="expanded-transcript">
-        <div class="expanded-header">
-            <span class="expanded-title">{escape_html(title)}</span>
-            <span class="expanded-close" data-close-id="{msg_id}">Close</span>
-        </div>
-        <div class="expanded-content">{formatted}</div>
+    <div style="background: #1A1A1A; border: 1px solid rgba(139,115,85,0.12); padding: 1.5rem; margin-top: 1rem;">
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: #6B6560; margin-bottom: 1rem;">{escape_html(title)}</div>
+        <div style="font-family: 'Spectral', serif; font-size: 0.9rem; line-height: 1.8; color: #EDE8E0;">{formatted}</div>
     </div>
     ''', unsafe_allow_html=True)
+
+
+def get_juror_emoji(name: str) -> str:
+    """Get juror number designation by name."""
+    return JUROR_EMOJI_MAP.get(name, "")
 
 
 def render_counsel_box_header(side: str, icon: str = ""):
-    """
-    Render counsel box header with icon.
-    
-    Args:
-        side: "plaintiff" or "defense"
-        icon: Optional emoji icon
-    """
+    """Render counsel box header."""
     if side == "plaintiff":
-        icon = icon or "🔴"
-        title = "Plaintiff Counsel"
-        header_class = "plaintiff-header"
+        title = "Plaintiff"
+        header_class = "counsel-header counsel-header-plaintiff"
     else:
-        icon = icon or "🔵"
-        title = "Defense Counsel"
-        header_class = "defense-header"
-    
+        title = "Defense"
+        header_class = "counsel-header counsel-header-defense"
+
     st.markdown(f'''
-    <div class="{header_class} counsel-header-with-icon">
-        <span class="header-icon">{icon}</span>
-        <span>{title}</span>
-    </div>
+    <div class="{header_class}">{title}</div>
     ''', unsafe_allow_html=True)
 
 
 def render_evidence_box_header():
-    """Render evidence stand header with icon."""
+    """Render evidence header."""
     st.markdown('''
-    <div class="evidence-header counsel-header-with-icon">
-        <span class="header-icon">📁</span>
-        <span>Evidence Stand</span>
-    </div>
+    <div class="evidence-header">Evidence</div>
     ''', unsafe_allow_html=True)
 
 
 def render_judge_box_header():
-    """Render judge bench header with icon."""
+    """Render judge bench header."""
     st.markdown('''
-    <div class="judge-header counsel-header-with-icon">
-        <span class="header-icon">⚖️</span>
-        <span>The Honorable Court Presiding</span>
-    </div>
+    <div class="bench-label">The Court</div>
     ''', unsafe_allow_html=True)
-
-def get_juror_emoji(name: str) -> str:
-    """Get emoji for a juror by name."""
-    return JUROR_EMOJI_MAP.get(name, "👤")
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# FULL COUNSEL BOX RENDERER
-# ═══════════════════════════════════════════════════════════════════════════════
-
-def render_counsel_box(side: str, messages: list, streaming_content: str = None) -> str:
-    """
-    Render the complete counsel box HTML including header, history cards, and streaming area.
-    This ensures all content stays visually contained within the bordered box.
-    """
-    if side == "plaintiff":
-        header_html = '<div class="plaintiff-header">🔴 Plaintiff Counsel</div>'
-        box_class = "counsel-table plaintiff-table"
-        card_class = "argument-card plaintiff-card"
-        agent_name = "ATTORNEY CHEN (Plaintiff)"
-    else:
-        header_html = '<div class="defense-header">Defense Counsel 🔵</div>'
-        box_class = "counsel-table defense-table"
-        card_class = "argument-card defense-card"
-        agent_name = "ATTORNEY WEBB (Defense)"
-        
-    # 1. Build History HTML
-    history_items = []
-    if messages:
-        for idx, msg in enumerate(messages):
-            content = msg.get('content', '')
-            
-            # Escape HTML
-            escaped_content = content.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;')
-            
-            # Create preview (first 80 chars)
-            preview = escaped_content[:80].replace('\n', ' ') + "..." if len(escaped_content) > 80 else escaped_content.replace('\n', ' ')
-            
-            # Full content with BRs
-            full_content = escaped_content.replace('\n', '<br>')
-            round_label = f"Round {idx + 1}"
-            
-            # item_html: flush left
-            item_html = f'''
-<details class="{card_class}">
-<summary>📜 {round_label}: {preview}</summary>
-<div class="argument-full">{full_content}</div>
-</details>'''
-            history_items.append(item_html)
-            
-    history_html = "\n".join(history_items)
-            
-    # 2. Build Streaming/Latest HTML
-    streaming_html = ""
-    if streaming_content:
-        # Active streaming
-        import time
-        escaped_stream = streaming_content.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('\n', '<br>')
-        streaming_html = f'''
-<div class="counsel-message {side}-message" style="margin-top: 1rem; border-top: 1px dashed rgba(255,255,255,0.1); padding-top: 1rem;">
-<div class="message-sender">{agent_name} (Streaming...)</div>
-<div class="streaming-text">{escaped_stream}</div>
-</div>'''
-    elif not messages:
-        # Empty state
-        streaming_html = '<div style="color: #64748b; font-style: italic; padding: 2rem; text-align: center;">Awaiting opening statements...</div>'
-        
-    return f'''
-<div class="{box_class}" style="min-height: 400px; display: flex; flex-direction: column;">
-{header_html}
-<div class="message-card-list" style="flex: 1; overflow-y: auto; max-height: 300px;">
-{history_html}
-</div>
-<div class="streaming-area">
-{streaming_html}
-</div>
-</div>'''
