@@ -1,9 +1,9 @@
 """
-LEX UMBRA: Autonomous Judicial Simulation
-═════════════════════════════════════════
-The Digital Courtroom Interface - Cyber-Noir Edition
+JUSTICIA EX MACHINA: Autonomous Judicial Simulation
+════════════════════════════════════════════════════
 
-A high-tech judicial control center that spatially mimics a real courtroom.
+A strikingly minimal interface for AI-powered courtroom proceedings.
+The weight of algorithmic justice meets refined design.
 """
 
 import streamlit as st
@@ -28,22 +28,25 @@ from ui.components import (
     JurorDisplay,
     render_jury_box,
     JUROR_EMOJI_MAP,
+    JUROR_DATA,
     render_counsel_box,
+    escape_html,
+    format_content,
 )
 from ui.handlers import stream_response, extract_pdf_text
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# JUROR PERSONA MAPPING (Used for both Demo and Main modes)
+# JUROR PERSONA MAPPING
 # ═══════════════════════════════════════════════════════════════════════════════
 
 JUROR_PERSONAS = {
-    "Marcus": {"emoji": "👷", "occupation": "Construction Foreman"},
-    "Elena": {"emoji": "👩‍🏫", "occupation": "High School Teacher"},
-    "Raymond": {"emoji": "👨‍💼", "occupation": "Retired Accountant"},
-    "Destiny": {"emoji": "👩‍⚕️", "occupation": "ER Nurse"},
-    "Chen": {"emoji": "👨‍🔬", "occupation": "Software Engineer"},
-    "Patricia": {"emoji": "👵", "occupation": "Former Judge"},
+    "Marcus": {"occupation": "Construction Foreman"},
+    "Elena": {"occupation": "High School Teacher"},
+    "Raymond": {"occupation": "Retired Accountant"},
+    "Destiny": {"occupation": "Emergency Room Nurse"},
+    "Chen": {"occupation": "Software Engineer"},
+    "Patricia": {"occupation": "Former Judge"},
 }
 
 
@@ -52,37 +55,37 @@ JUROR_PERSONAS = {
 # ═══════════════════════════════════════════════════════════════════════════════
 
 MOCK_PLAINTIFF_MESSAGES = [
-    {"agent_type": "plaintiff", "agent_name": "ATTORNEY CHEN", "timestamp": "09:15:32",
-     "content": "Your Honor, members of the jury—the evidence will show a clear pattern of negligence that resulted in catastrophic damages to my client."},
-    {"agent_type": "plaintiff", "agent_name": "ATTORNEY CHEN", "timestamp": "09:18:45",
-     "content": "Exhibit A demonstrates that the defendant was explicitly warned about these risks THREE TIMES before the incident occurred."},
-    {"agent_type": "plaintiff", "agent_name": "ATTORNEY CHEN", "timestamp": "09:22:11",
-     "content": "We intend to prove, beyond any reasonable doubt, that this was not an accident—it was willful disregard for human safety."},
+    {"agent_type": "plaintiff", "agent_name": "Plaintiff Counsel", "timestamp": "09:15:32",
+     "content": "Your Honor, members of the jury, the evidence will show a clear pattern of negligence that resulted in catastrophic damages to my client."},
+    {"agent_type": "plaintiff", "agent_name": "Plaintiff Counsel", "timestamp": "09:18:45",
+     "content": "Exhibit A demonstrates that the defendant was explicitly warned about these risks three times before the incident occurred."},
 ]
 
 MOCK_DEFENSE_MESSAGES = [
-    {"agent_type": "defense", "agent_name": "ATTORNEY WEBB", "timestamp": "09:16:08",
-     "content": "Your Honor, the plaintiff's case rests on circumstantial evidence and emotional appeals rather than facts."},
-    {"agent_type": "defense", "agent_name": "ATTORNEY WEBB", "timestamp": "09:19:55",
-     "content": "My client followed every protocol mandated by industry standards. The so-called 'warnings' were routine compliance notices."},
-    {"agent_type": "defense", "agent_name": "ATTORNEY WEBB", "timestamp": "09:23:40",
-     "content": "We will demonstrate that the plaintiff's own actions contributed significantly to the outcome they now attribute to my client."},
+    {"agent_type": "defense", "agent_name": "Defense Counsel", "timestamp": "09:16:08",
+     "content": "Your Honor, the plaintiff's case rests on circumstantial evidence and emotional appeals rather than established facts."},
+    {"agent_type": "defense", "agent_name": "Defense Counsel", "timestamp": "09:19:55",
+     "content": "My client followed every protocol mandated by industry standards. The so-called warnings were routine compliance notices."},
 ]
 
-MOCK_CASE_FACTS = """**CASE SUMMARY: Meridian Corp v. Sullivan**
+MOCK_CASE_FACTS = """SUPREME COURT OF THE STATE OF NEW YORK
+COUNTY OF NASSAU
 
-**Plaintiff:** Meridian Corporation
-**Defendant:** James Sullivan, Former CTO
+JOHN JONES,
+    Plaintiff,
+        v.
+GEORGE SMITH,
+    Defendant.
 
-**Core Allegation:** Breach of fiduciary duty and misappropriation of trade secrets following defendant's departure to competitor firm.
+Index No. 2024-0130
 
-**Key Evidence:**
-- Email correspondence dated March 2024
-- Server access logs showing unusual download patterns
-- Witness testimony from 3 former colleagues
-- Financial records showing competitor's accelerated timeline
+COMPLAINT
 
-**Damages Sought:** $4.2 Million + Injunctive Relief"""
+Plaintiff John Jones, by and through his attorneys, alleges as follows:
+
+1. Plaintiff is a resident of Nassau County, New York.
+2. Defendant is a corporation organized under the laws of the State of New York.
+3. At all times relevant hereto, Defendant owed a duty of care to Plaintiff..."""
 
 MOCK_JUROR_DATA = [
     {"name": "Marcus", "score": 45, "thought": "The defense seems unprepared..."},
@@ -100,14 +103,16 @@ MOCK_JUROR_DATA = [
 
 settings = get_settings()
 
-# Determine initial sidebar state based on whether trial has started
-_sidebar_state = "expanded"
-if hasattr(st, 'session_state') and st.session_state.get('trial_started', False):
-    _sidebar_state = "collapsed"
+# Sidebar state management
+_base_state = "collapsed" if (hasattr(st, 'session_state') and st.session_state.get('trial_started', False)) else "expanded"
+_sidebar_state = st.session_state.get("sidebar_visible", _base_state) if hasattr(st, "session_state") else _base_state
+
+if hasattr(st, 'session_state') and 'sidebar_visible' in st.session_state:
+    _sidebar_state = "expanded" if st.session_state.sidebar_visible else "collapsed"
 
 st.set_page_config(
-    page_title="LEX UMBRA | Autonomous Judicial Simulation",
-    page_icon="⚖️",
+    page_title="Justicia Ex Machina",
+    page_icon="",
     layout="wide",
     initial_sidebar_state=_sidebar_state
 )
@@ -129,7 +134,7 @@ def init_session_state():
     if "is_processing" not in st.session_state:
         st.session_state.is_processing = False
     if "case_id" not in st.session_state:
-        st.session_state.case_id = f"LU-{time.strftime('%Y')}-{hash(time.time()) % 100000:05d}"
+        st.session_state.case_id = f"JEM-{time.strftime('%Y')}-{hash(time.time()) % 100000:05d}"
     if "juror_thoughts" not in st.session_state:
         st.session_state.juror_thoughts = {}
     if "demo_mode" not in st.session_state:
@@ -161,13 +166,13 @@ def add_message(orch, agent_type: str, agent_name: str, content: str, score=None
 def get_phase_display_name(phase: TrialPhase) -> str:
     """Get display name for trial phase."""
     phase_names = {
-        TrialPhase.AWAITING_COMPLAINT: "AWAITING CASE",
-        TrialPhase.COURT_ASSEMBLED: "COURT ASSEMBLED",
-        TrialPhase.OPENING_STATEMENTS: "OPENING STATEMENTS",
-        TrialPhase.ARGUMENTS: "ARGUMENTS",
-        TrialPhase.JURY_DELIBERATION: "DELIBERATION",
-        TrialPhase.VERDICT: "VERDICT",
-        TrialPhase.ADJOURNED: "ADJOURNED",
+        TrialPhase.AWAITING_COMPLAINT: "Awaiting Case",
+        TrialPhase.COURT_ASSEMBLED: "Court Assembled",
+        TrialPhase.OPENING_STATEMENTS: "Opening Statements",
+        TrialPhase.ARGUMENTS: "Arguments",
+        TrialPhase.JURY_DELIBERATION: "Deliberation",
+        TrialPhase.VERDICT: "Verdict",
+        TrialPhase.ADJOURNED: "Adjourned",
     }
     return phase_names.get(phase, phase.value)
 
@@ -199,9 +204,8 @@ def build_juror_personas(orch) -> dict:
     personas = {}
     for juror in orch.jury.jurors:
         name = juror.name
-        persona_info = JUROR_PERSONAS.get(name, {"emoji": "👤", "occupation": "Juror"})
+        persona_info = JUROR_PERSONAS.get(name, {"occupation": "Juror"})
         personas[name] = {
-            "emoji": persona_info["emoji"],
             "occupation": persona_info["occupation"],
             "thought": st.session_state.juror_thoughts.get(name, "Awaiting deliberation...")
         }
@@ -209,67 +213,33 @@ def build_juror_personas(orch) -> dict:
     return personas
 
 
-def render_message_card(msg: dict, side: str, show_full: bool = False):
-    """Render a clickable message card in counsel table."""
-    content = msg.get('content', '')
-    msg_id = f"{side}_{msg.get('timestamp', '')}_{hash(content[:20]) if content else 0}"
-
-    # Truncate if not expanded
-    display_content = content
-    is_truncated = False
-    if not show_full and len(content) > 250:
-        display_content = content[:250] + "..."
-        is_truncated = True
-
-    # Escape HTML
-    display_content = display_content.replace('<', '&lt;').replace('>', '&gt;').replace('\n', '<br>')
-
-    message_class = f"{side}-message"
-
-    st.markdown(f'''
-    <div class="counsel-message {message_class}" style="cursor: {'pointer' if is_truncated else 'default'};">
-        <div class="message-sender">{msg.get('agent_name', '')}</div>
-        {display_content}
-        <div class="message-time">⏱ {msg.get('timestamp', '')}</div>
-        {'<div style="color: #C5A059; font-size: 0.7rem; margin-top: 0.5rem;">Click to expand...</div>' if is_truncated else ''}
-    </div>
-    ''', unsafe_allow_html=True)
-
-    return is_truncated, msg_id
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
-# STREAMING FUNCTIONS (Stream into appropriate columns)
+# STREAMING FUNCTIONS
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def stream_to_placeholder(placeholder, agent, prompt, agent_type, agent_name):
     """Stream response to a placeholder with typing effect."""
     response = ""
-    message_class = f"{agent_type}-message"
 
     try:
         for chunk in agent.generate_stream(prompt):
             response += chunk
-            display = response.replace('<', '&lt;').replace('>', '&gt;').replace('\n', '<br>')
+            display = escape_html(response).replace('\n', '<br>')
             placeholder.markdown(f'''
-            <div class="counsel-message {message_class}">
-                <div class="message-sender">{agent_name}</div>
-                {display}<span style="animation: blink 1s infinite;">▌</span>
-                <div class="message-time">⏱ {time.strftime("%H:%M:%S")}</div>
+            <div class="argument-entry animate-in">
+                <div class="argument-round">{agent_name}</div>
+                <div class="argument-text">{display}<span class="typing-cursor"></span></div>
             </div>
-            <style>@keyframes blink {{ 0%, 50% {{ opacity: 1; }} 51%, 100% {{ opacity: 0; }} }}</style>
             ''', unsafe_allow_html=True)
     except Exception as e:
-        # Fallback to non-streaming
         response = agent.generate(prompt)
 
     # Final render without cursor
-    display = response.replace('<', '&lt;').replace('>', '&gt;').replace('\n', '<br>')
+    display = escape_html(response).replace('\n', '<br>')
     placeholder.markdown(f'''
-    <div class="counsel-message {message_class}">
-        <div class="message-sender">{agent_name}</div>
-        {display}
-        <div class="message-time">⏱ {time.strftime("%H:%M:%S")}</div>
+    <div class="argument-entry">
+        <div class="argument-round">{agent_name}</div>
+        <div class="argument-text">{display}</div>
     </div>
     ''', unsafe_allow_html=True)
 
@@ -281,11 +251,11 @@ def stream_to_placeholder(placeholder, agent, prompt, agent_type, agent_name):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def run_opening_statements(orch, plaintiff_placeholder, defense_placeholder, judge_placeholder):
-    """Execute opening statements with streaming to appropriate columns."""
+    """Execute opening statements with streaming."""
 
     # Judge opens
     judge_content = orch.judge.open_court(orch.case_title)
-    orch._add_to_transcript("judge", "JUDGE MARSHALL", judge_content)
+    orch._add_to_transcript("judge", "The Court", judge_content)
     update_judge_bench(judge_placeholder, judge_content)
 
     # Plaintiff streams
@@ -295,13 +265,13 @@ def run_opening_statements(orch, plaintiff_placeholder, defense_placeholder, jud
         orch.plaintiff_lawyer,
         prompt,
         "plaintiff",
-        "ATTORNEY CHEN (Plaintiff)"
+        "Plaintiff Counsel"
     )
-    orch._add_to_transcript("plaintiff", "ATTORNEY CHEN (Plaintiff)", response)
+    orch._add_to_transcript("plaintiff", "Plaintiff Counsel", response)
 
     # Judge transition
     judge_content = Prompts.JUDGE_TRANSITION_TO_DEFENSE
-    orch._add_to_transcript("judge", "JUDGE MARSHALL", judge_content)
+    orch._add_to_transcript("judge", "The Court", judge_content)
     update_judge_bench(judge_placeholder, judge_content)
 
     # Defense streams
@@ -311,33 +281,33 @@ def run_opening_statements(orch, plaintiff_placeholder, defense_placeholder, jud
         orch.defense_lawyer,
         prompt,
         "defense",
-        "ATTORNEY WEBB (Defense)"
+        "Defense Counsel"
     )
-    orch._add_to_transcript("defense", "ATTORNEY WEBB (Defense)", response)
+    orch._add_to_transcript("defense", "Defense Counsel", response)
 
     # Conclude
     judge_content = Prompts.JUDGE_OPENINGS_COMPLETE
-    orch._add_to_transcript("judge", "JUDGE MARSHALL", judge_content)
+    orch._add_to_transcript("judge", "The Court", judge_content)
     update_judge_bench(judge_placeholder, judge_content)
 
     orch.start_arguments()
 
 
 def run_argument_round(orch, plaintiff_placeholder, defense_placeholder, judge_placeholder):
-    """Execute one round of arguments with bidirectional context."""
+    """Execute one round of arguments."""
 
     round_num = orch.current_round
 
     # Judge announces round
     judge_content = Prompts.JUDGE_ARGUMENT_ROUND.format(round_num=round_num)
-    orch._add_to_transcript("judge", "JUDGE MARSHALL", judge_content)
+    orch._add_to_transcript("judge", "The Court", judge_content)
     update_judge_bench(judge_placeholder, judge_content)
 
-    # Get previous arguments from both sides
+    # Get previous arguments
     plaintiff_msgs = [m for m in orch.transcript if m.agent_type == "plaintiff"]
     defense_msgs = [m for m in orch.transcript if m.agent_type == "defense"]
-    
-    # Plaintiff argument - with context from both sides
+
+    # Plaintiff argument
     if round_num == 1:
         prompt = Prompts.PLAINTIFF_MAIN_ARGUMENT.format(case_facts=orch.case_facts)
     else:
@@ -353,30 +323,30 @@ def run_argument_round(orch, plaintiff_placeholder, defense_placeholder, judge_p
         orch.plaintiff_lawyer,
         prompt,
         "plaintiff",
-        "ATTORNEY CHEN (Plaintiff)"
+        "Plaintiff Counsel"
     )
-    orch._add_to_transcript("plaintiff", "ATTORNEY CHEN (Plaintiff)", plaintiff_response)
+    orch._add_to_transcript("plaintiff", "Plaintiff Counsel", plaintiff_response)
 
     # Judge transition
     judge_content = Prompts.JUDGE_DEFENSE_RESPOND
-    orch._add_to_transcript("judge", "JUDGE MARSHALL", judge_content)
+    orch._add_to_transcript("judge", "The Court", judge_content)
     update_judge_bench(judge_placeholder, judge_content)
 
-    # Defense rebuttal - with context from both sides
+    # Defense rebuttal
     last_defense = defense_msgs[-1].content if defense_msgs else ""
     prompt = Prompts.DEFENSE_ARGUMENT_WITH_CONTEXT.format(
         plaintiff_argument=plaintiff_response[:400],
         defense_previous=last_defense[:400]
     )
-    
+
     defense_response = stream_to_placeholder(
         defense_placeholder,
         orch.defense_lawyer,
         prompt,
         "defense",
-        "ATTORNEY WEBB (Defense)"
+        "Defense Counsel"
     )
-    orch._add_to_transcript("defense", "ATTORNEY WEBB (Defense)", defense_response)
+    orch._add_to_transcript("defense", "Defense Counsel", defense_response)
 
     orch.advance_round()
 
@@ -386,14 +356,19 @@ def run_jury_deliberation(orch, judge_placeholder):
 
     # Judge instructs jury
     judge_content = Prompts.JUDGE_JURY_DELIBERATE
-    orch._add_to_transcript("judge", "JUDGE MARSHALL", judge_content)
+    orch._add_to_transcript("judge", "The Court", judge_content)
     update_judge_bench(judge_placeholder, judge_content)
 
     context = orch.get_recent_arguments(4)
 
     # Progress indicator
     progress_placeholder = st.empty()
-    progress_placeholder.info("⏳ All jurors are deliberating simultaneously...")
+    progress_placeholder.markdown('''
+    <div class="streaming-indicator" style="padding: 1rem;">
+        <span class="streaming-dot"></span>
+        <span>Jury deliberating</span>
+    </div>
+    ''', unsafe_allow_html=True)
 
     def get_juror_response(juror):
         prompt = Prompts.JUROR_DELIBERATION.format(context=context, juror_name=juror.name)
@@ -418,17 +393,22 @@ def run_jury_deliberation(orch, judge_placeholder):
         completed = 0
         for future in as_completed(futures):
             completed += 1
-            progress_placeholder.info(f"⏳ Jurors deliberating... ({completed}/{orch.jury.size} complete)")
+            progress_placeholder.markdown(f'''
+            <div class="streaming-indicator" style="padding: 1rem;">
+                <span class="streaming-dot"></span>
+                <span>Deliberating ({completed}/{orch.jury.size})</span>
+            </div>
+            ''', unsafe_allow_html=True)
             results.append(future.result())
 
     progress_placeholder.empty()
 
-    # Store thoughts for jury box display
+    # Store thoughts
     for result in results:
         juror = result["juror"]
         thought = result["response"][:80] + "..." if len(result["response"]) > 80 else result["response"]
         st.session_state.juror_thoughts[juror.name] = thought
-        orch._add_to_transcript("juror", f"JUROR: {juror.name}", result["response"], result["score"])
+        orch._add_to_transcript("juror", f"Juror {juror.name}", result["response"], result["score"])
 
     orch.start_jury_deliberation()
 
@@ -438,122 +418,100 @@ def run_verdict(orch, judge_placeholder):
 
     # Judge pre-verdict
     judge_content = Prompts.JUDGE_PRE_VERDICT
-    orch._add_to_transcript("judge", "JUDGE MARSHALL", judge_content)
+    orch._add_to_transcript("judge", "The Court", judge_content)
     update_judge_bench(judge_placeholder, judge_content)
 
     # Summary
     context = orch.get_recent_arguments(4)
     prompt = Prompts.JUDGE_SUMMARY_PROMPT.format(context=context)
     summary = orch.judge.generate(prompt)
-    orch._add_to_transcript("judge", "JUDGE MARSHALL", summary)
+    orch._add_to_transcript("judge", "The Court", summary)
 
     # Verdict
     verdict_info = orch.jury.get_verdict()
     avg = verdict_info["average_score"]
 
     if verdict_info["verdict"] == "PLAINTIFF":
-        verdict_text = f"VERDICT: PLAINTIFF PREVAILS\n\nDamages Awarded: ${verdict_info['damages']:,}"
+        verdict_text = f"Plaintiff Prevails — Damages: ${verdict_info['damages']:,}"
     elif verdict_info["verdict"] == "DEFENSE":
-        verdict_text = "VERDICT: DEFENSE PREVAILS\n\nCase Dismissed"
+        verdict_text = "Defense Prevails — Case Dismissed"
     else:
-        verdict_text = "VERDICT: HUNG JURY\n\nMistrial Declared"
+        verdict_text = "Hung Jury — Mistrial Declared"
 
     scores = [f"{n}: {s}" for n, s in verdict_info["individual_scores"].items()]
-    final_content = f"{summary}\n\n**{verdict_text}**\n\nJury Score: {avg:.1f}/100\nBreakdown: {', '.join(scores)}"
+    final_content = f"{summary}\n\n**{verdict_text}**\n\nAverage Score: {avg:.1f}"
 
     update_judge_bench(judge_placeholder, final_content)
-    orch._add_to_transcript("judge", "JUDGE MARSHALL", verdict_text)
+    orch._add_to_transcript("judge", "The Court", verdict_text)
 
     orch.adjourn()
 
 
 def run_autonomous_trial(orch, plaintiff_placeholder, defense_placeholder, judge_placeholder):
-    """Run the complete autonomous trial - agents debate until done, then jury deliberates."""
-    
-    # Progress display
+    """Run complete autonomous trial."""
+
     progress_container = st.empty()
     status_container = st.empty()
-    
-    # Run the autonomous debate
+
     for update in orch.run_autonomous_debate():
         event_type = update.get("type")
-        
+
         if event_type == "judge":
             update_judge_bench(judge_placeholder, update.get("content", ""))
-            
+
         elif event_type == "round_start":
             round_num = update.get("round", 1)
-            progress_container.info(f"⚔️ Round {round_num} - Counsel are debating...")
-            
+            progress_container.markdown(f'''
+            <div class="streaming-indicator" style="padding: 1rem;">
+                <span class="streaming-dot"></span>
+                <span>Round {round_num}</span>
+            </div>
+            ''', unsafe_allow_html=True)
+
         elif event_type == "plaintiff_speaking":
-            status_container.markdown("🔴 **Plaintiff speaking...**")
-            # Clear previous "streaming" state by rendering just history
+            status_container.markdown("Plaintiff speaking...")
             plaintiff_msgs = [m for m in orch.get_transcript() if m.get('agent_type') == 'plaintiff']
-            plaintiff_placeholder.markdown(render_counsel_box("plaintiff", plaintiff_msgs, "typing..."), unsafe_allow_html=True)
-            
+            plaintiff_placeholder.markdown(render_counsel_box("plaintiff", plaintiff_msgs, "..."), unsafe_allow_html=True)
+
         elif event_type == "plaintiff_done":
-            content = update.get("content", "")
-            # Update with full content being streamed (simulated final update)
-            plaintiff_msgs = [m for m in orch.get_transcript() if m.get('agent_type') == 'plaintiff']
-            # Note: The content isn't in transcript yet? The orchestrator usually adds it. 
-            # If orchestrator yielded "done", it likely added it. Let's check orchestrator logic.
-            # Assuming it's added, we just re-render. If not, we pass content as streaming.
-            # Actually, run_autonomous_debate yields "done" with content, but doesn't explicitly say if added.
-            # Looking at trial.py: it adds to transcript before yielding "done" usually.
-            
-            # Let's assume it IS added. So we render history.
-            # Just in case, let's re-fetch.
             plaintiff_placeholder.markdown(render_counsel_box("plaintiff", [m for m in orch.get_transcript() if m.get('agent_type') == 'plaintiff']), unsafe_allow_html=True)
-            
+
         elif event_type == "defense_speaking":
-            status_container.markdown("🔵 **Defense responding...**")
+            status_container.markdown("Defense responding...")
             defense_msgs = [m for m in orch.get_transcript() if m.get('agent_type') == 'defense']
-            defense_placeholder.markdown(render_counsel_box("defense", defense_msgs, "typing..."), unsafe_allow_html=True)
-            
+            defense_placeholder.markdown(render_counsel_box("defense", defense_msgs, "..."), unsafe_allow_html=True)
+
         elif event_type == "defense_done":
             defense_placeholder.markdown(render_counsel_box("defense", [m for m in orch.get_transcript() if m.get('agent_type') == 'defense']), unsafe_allow_html=True)
-            
-        # Optional: Handle streaming chunks if the generator yields them (currently it yields blocks)
-        # If we wanted char-by-char, we'd need the generator to yield chunks. 
-        # The current implementation of run_autonomous_debate seems to yield whole messages or states.
-        # If it yields "speaking" with chunks, we'd update here. 
-        # But based on previous code, it just said "plaintiff_speaking" then "plaintiff_done".
-        # So "streaming" might just be "typing..." for now unless we change orchestrator.
-            
+
         elif event_type == "round_complete":
             round_num = update.get("round", 1)
             reason = update.get("reason", "")
             should_continue = update.get("should_continue", True)
-            
+
             if should_continue:
-                status_container.success(f"✓ Round {round_num} complete. {reason}")
+                status_container.markdown(f"Round {round_num} complete. {reason}")
             else:
-                status_container.success(f"✓ Round {round_num} complete. Debate concluded: {reason}")
-                
+                status_container.markdown(f"Debate concluded: {reason}")
+
         elif event_type == "debate_complete":
             total_rounds = update.get("total_rounds", 1)
-            progress_container.success(f"✅ Debate complete after {total_rounds} rounds. Proceeding to jury...")
-    
-    # Clear progress
+            progress_container.markdown(f"Debate complete after {total_rounds} rounds.")
+
     status_container.empty()
-    
-    # Now run jury deliberation
+
     run_jury_deliberation(orch, judge_placeholder)
-    
-    # And verdict
     run_verdict(orch, judge_placeholder)
 
 
 def update_judge_bench(placeholder, content: str):
-    """Update the judge's bench with new content."""
-    formatted = content.replace('<', '&lt;').replace('>', '&gt;')
-    formatted = formatted.replace('**', '<strong>').replace('*', '<em>')
-    formatted = formatted.replace('\n', '<br>')
+    """Update the judge's bench."""
+    formatted = format_content(content)
 
     placeholder.markdown(f'''
-    <div class="judge-bench glow-effect">
-        <div class="judge-header">⚖️ The Honorable Court Presiding</div>
-        <div class="judge-content">
+    <div class="bench">
+        <div class="bench-label">The Court</div>
+        <div class="bench-content">
             {formatted}
         </div>
     </div>
@@ -561,24 +519,24 @@ def update_judge_bench(placeholder, content: str):
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# DEMO MODE RENDERING
+# DEMO MODE
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def render_demo_mode():
-    """Render the UI with mock data for layout verification."""
+    """Render UI with mock data."""
     demo_jurors = st.session_state.demo_jurors
 
     render_header()
-    render_status_bar("ARGUMENTS", "LU-2024-00847", "DEMO")
+    render_status_bar("Arguments", "JEM-2024-00847", "Demo")
 
     # Judge's Bench
     st.markdown('''
-    <div class="judge-bench glow-effect">
-        <div class="judge-header">⚖️ The Honorable Court Presiding</div>
-        <div class="judge-content">
-            <strong>COURT IS IN SESSION</strong><br><br>
-            <em>The jury is reminded that they must evaluate evidence based solely on what is presented in this courtroom.
-            Outside research or personal knowledge of the parties involved is strictly prohibited.</em><br><br>
+    <div class="bench">
+        <div class="bench-label">The Court</div>
+        <div class="bench-content">
+            <strong>Court is in Session</strong><br><br>
+            <em>The jury is reminded to evaluate evidence based solely on what is presented in this courtroom.
+            Outside research or personal knowledge of the parties is strictly prohibited.</em><br><br>
             Counsel may proceed with arguments.
         </div>
     </div>
@@ -587,62 +545,28 @@ def render_demo_mode():
     col_plaintiff, col_evidence, col_defense = st.columns([1, 1, 1])
 
     with col_plaintiff:
-        st.markdown('''
-        <div class="counsel-table plaintiff-table">
-            <div class="plaintiff-header">🔴 Plaintiff Counsel</div>
-        ''', unsafe_allow_html=True)
-
-        for msg in MOCK_PLAINTIFF_MESSAGES:
-            st.markdown(f'''
-            <div class="counsel-message plaintiff-message">
-                <div class="message-sender">{msg["agent_name"]}</div>
-                {msg["content"]}
-                <div class="message-time">⏱ {msg["timestamp"]}</div>
-            </div>
-            ''', unsafe_allow_html=True)
-
-        st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown(render_counsel_box("plaintiff", MOCK_PLAINTIFF_MESSAGES), unsafe_allow_html=True)
 
     with col_evidence:
-        st.markdown('''
-        <div class="evidence-stand">
-            <div class="evidence-header">📁 Evidence Stand</div>
-        ''', unsafe_allow_html=True)
-
-        render_case_title("Meridian Corp v. Sullivan")
-
         st.markdown(f'''
-        <div class="evidence-content">
-            {MOCK_CASE_FACTS.replace(chr(10), '<br>')}
+        <div class="evidence-box">
+            <div class="evidence-header">Evidence</div>
+            <div class="evidence-content">
+                <div class="case-title-display">Jones v. Smith</div>
+                <div class="case-excerpt">{escape_html(MOCK_CASE_FACTS[:400])}...</div>
+            </div>
         </div>
         ''', unsafe_allow_html=True)
 
-        st.markdown('</div>', unsafe_allow_html=True)
-
     with col_defense:
-        st.markdown('''
-        <div class="counsel-table defense-table">
-            <div class="defense-header">Defense Counsel 🔵</div>
-        ''', unsafe_allow_html=True)
+        st.markdown(render_counsel_box("defense", MOCK_DEFENSE_MESSAGES), unsafe_allow_html=True)
 
-        for msg in MOCK_DEFENSE_MESSAGES:
-            st.markdown(f'''
-            <div class="counsel-message defense-message">
-                <div class="message-sender">{msg["agent_name"]}</div>
-                {msg["content"]}
-                <div class="message-time">⏱ {msg["timestamp"]}</div>
-            </div>
-            ''', unsafe_allow_html=True)
-
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    # Jury Box with emojis
+    # Jury Box
     jury_scores = {j["name"]: j["score"] for j in demo_jurors}
     juror_personas = {}
     for j in demo_jurors:
-        persona = JUROR_PERSONAS.get(j["name"], {"emoji": "👤", "occupation": "Juror"})
+        persona = JUROR_PERSONAS.get(j["name"], {"occupation": "Juror"})
         juror_personas[j["name"]] = {
-            "emoji": persona["emoji"],
             "occupation": persona["occupation"],
             "thought": j["thought"]
         }
@@ -650,18 +574,18 @@ def render_demo_mode():
 
     # Sidebar
     with st.sidebar:
-        st.markdown('<div class="sidebar-header">🎭 Demo Mode</div>', unsafe_allow_html=True)
+        st.markdown('<div class="sidebar-title">Demo Mode</div>', unsafe_allow_html=True)
 
-        st.warning("UI Preview Mode - Mock Data")
+        st.info("Preview mode with mock data")
 
-        if st.button("Exit Demo Mode", use_container_width=True):
+        if st.button("Exit Demo", use_container_width=True):
             st.session_state.demo_mode = False
             st.rerun()
 
         st.divider()
         st.markdown("### Jury Controls")
 
-        if st.button("🎲 Randomize Sentiment", use_container_width=True):
+        if st.button("Randomize Scores", use_container_width=True):
             thoughts = [
                 "This changes everything...",
                 "I'm not convinced yet.",
@@ -677,12 +601,12 @@ def render_demo_mode():
 
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("🔴 Plaintiff", use_container_width=True):
+            if st.button("+ Plaintiff", use_container_width=True):
                 for j in st.session_state.demo_jurors:
                     j["score"] = min(100, j["score"] + random.randint(5, 15))
                 st.rerun()
         with col2:
-            if st.button("🔵 Defense", use_container_width=True):
+            if st.button("+ Defense", use_container_width=True):
                 for j in st.session_state.demo_jurors:
                     j["score"] = max(0, j["score"] - random.randint(5, 15))
                 st.rerun()
@@ -703,165 +627,125 @@ def main():
     is_processing = st.session_state.is_processing
 
     # ═══════════════════════════════════════════════════════════════════════════
-    # ZONE A: HEADER
+    # HEADER
     # ═══════════════════════════════════════════════════════════════════════════
     render_header()
 
     phase = orch.phase
     phase_display = get_phase_display_name(phase)
-    session_status = "PROCESSING" if is_processing else "ACTIVE"
+    session_status = "Processing" if is_processing else "Active"
 
     render_status_bar(phase_display, st.session_state.case_id, session_status)
 
     # ═══════════════════════════════════════════════════════════════════════════
-    # ZONE B: JUDGE'S BENCH (Shows actual judge statements)
+    # JUDGE'S BENCH
     # ═══════════════════════════════════════════════════════════════════════════
     judge_placeholder = st.empty()
 
-    # Get latest judge message or show phase-appropriate default
     latest_judge = get_latest_judge_message(orch)
 
     if latest_judge:
         judge_content = latest_judge
     elif phase == TrialPhase.AWAITING_COMPLAINT:
-        judge_content = "**COURT AWAITING CASE FILING**\n\n*Submit a complaint document to initialize the judicial simulation.*"
+        judge_content = "**Awaiting Case Filing**\n\n*Submit a complaint document to initialize proceedings.*"
     elif phase == TrialPhase.COURT_ASSEMBLED:
-        judge_content = f"**COURT IS ASSEMBLED**\n\n*Case:* {orch.case_title}\n\n*All parties are present. Counsel may proceed when ready.*"
+        judge_content = f"**Court is Assembled**\n\n*Case:* {orch.case_title}\n\n*All parties present. Counsel may proceed.*"
     elif phase == TrialPhase.ADJOURNED:
-        judge_content = "**COURT IS ADJOURNED**\n\n*This matter has been concluded. The record is sealed.*"
+        judge_content = "**Court is Adjourned**\n\n*This matter has been concluded.*"
     else:
-        judge_content = "**COURT IS IN SESSION**\n\n*Proceedings are underway. The jury is reminded to evaluate evidence based solely on what is presented.*"
+        judge_content = "**Court is in Session**\n\n*Proceedings underway.*"
 
     update_judge_bench(judge_placeholder, judge_content)
 
     # ═══════════════════════════════════════════════════════════════════════════
-    # ZONE C: THE WELL (Counsel Tables + Evidence Stand)
+    # THE WELL: Counsel Tables + Evidence
     # ═══════════════════════════════════════════════════════════════════════════
     col_plaintiff, col_evidence, col_defense = st.columns([1, 1, 1])
 
-    # Plaintiff Table
+    # Plaintiff
     with col_plaintiff:
         plaintiff_msgs = [m for m in orch.get_transcript() if m.get('agent_type') == 'plaintiff']
         plaintiff_stream_placeholder = st.empty()
         plaintiff_stream_placeholder.markdown(render_counsel_box("plaintiff", plaintiff_msgs), unsafe_allow_html=True)
 
-    # Evidence Stand
+    # Evidence
     with col_evidence:
-        st.markdown('''
-        <div class="evidence-stand">
-            <div class="evidence-header">📁 Evidence Stand</div>
-        ''', unsafe_allow_html=True)
+        evidence_html = '<div class="evidence-box"><div class="evidence-header">Evidence</div><div class="evidence-content">'
 
         if orch.case_facts:
             if orch.case_title:
-                render_case_title(orch.case_title)
+                evidence_html += f'<div class="case-title-display">{escape_html(orch.case_title)}</div>'
 
             summary = get_case_summary(orch.case_facts, 400)
-            st.markdown(f'''
-            <div class="evidence-content">
-                {summary}
-            </div>
-            ''', unsafe_allow_html=True)
+            evidence_html += f'<div class="case-excerpt">{escape_html(summary)}</div>'
 
-            with st.expander("View Full Case Document"):
-                st.markdown(orch.case_facts)
+            # Expandable full document
+            full_doc = escape_html(orch.case_facts).replace('\n', '<br>')
+            evidence_html += f'''
+            <details class="argument-collapse" style="margin-top: 1rem;">
+                <summary>View Full Document</summary>
+                <div class="argument-collapse-content" style="max-height: 300px; font-family: 'IBM Plex Mono', monospace; font-size: 0.8rem;">
+                    {full_doc}
+                </div>
+            </details>'''
         else:
-            st.markdown('''
-            <div style="color: #64748b; font-style: italic; padding: 1rem; text-align: center;">
-                No evidence submitted
-            </div>
-            ''', unsafe_allow_html=True)
+            evidence_html += '<div style="color: #4A4845; font-style: italic; padding: 2rem; text-align: center;">No evidence submitted</div>'
 
-        st.markdown('</div>', unsafe_allow_html=True)
+        evidence_html += '</div></div>'
+        st.markdown(evidence_html, unsafe_allow_html=True)
 
-    # Defense Table
+    # Defense
     with col_defense:
         defense_msgs = [m for m in orch.get_transcript() if m.get('agent_type') == 'defense']
         defense_stream_placeholder = st.empty()
         defense_stream_placeholder.markdown(render_counsel_box("defense", defense_msgs), unsafe_allow_html=True)
 
     # ═══════════════════════════════════════════════════════════════════════════
-    # ZONE D: JURY BOX (with expandable juror tabs)
+    # JURY BOX
     # ═══════════════════════════════════════════════════════════════════════════
     if orch.jury and orch.jury.size > 0:
         jury_scores = orch.jury.get_scores()
         juror_personas = build_juror_personas(orch)
 
-        # First render the visual jury box with emojis
         render_jury_box_from_scores(jury_scores, juror_personas)
 
-        # Then add expandable tabs for each juror's full thoughts
-        st.markdown("#### 👥 Juror Deliberations")
-        st.caption("Click on a juror to see their full thought process")
+        # Expandable juror details
+        with st.expander("Juror Details", expanded=False):
+            cols = st.columns(3)
+            for idx, (name, score) in enumerate(jury_scores.items()):
+                with cols[idx % 3]:
+                    persona = juror_personas.get(name, {})
+                    occupation = JUROR_PERSONAS.get(name, {}).get("occupation", "Juror")
+                    thought = persona.get("thought", "Deliberating...")
 
-        # Create tab labels with emojis from JUROR_PERSONAS (which matches actual names)
-        tab_labels = []
-        for name in jury_scores.keys():
-            persona_info = JUROR_PERSONAS.get(name, {"emoji": "👤"})
-            emoji = persona_info.get("emoji", "👤")
-            tab_labels.append(f"{emoji} {name}")
+                    if score > 55:
+                        leaning = "Plaintiff"
+                        leaning_color = "#6B2A2A"
+                    elif score < 45:
+                        leaning = "Defense"
+                        leaning_color = "#2A3A6B"
+                    else:
+                        leaning = "Undecided"
+                        leaning_color = "#4A4845"
 
-        juror_tabs = st.tabs(tab_labels)
-
-        for idx, (name, score) in enumerate(jury_scores.items()):
-            with juror_tabs[idx]:
-                persona = juror_personas.get(name, {})
-                persona_info = JUROR_PERSONAS.get(name, {"emoji": "👤", "occupation": "Juror"})
-                occupation = persona_info.get("occupation", persona.get("occupation", "Juror"))
-                thought = persona.get("thought", "No thoughts recorded yet...")
-                emoji = persona_info.get("emoji", "👤")
-
-                # Leaning indicator (50 is the threshold)
-                if score > 55:
-                    leaning = "🔴 Leans Plaintiff"
-                    leaning_color = "#8B0000"
-                elif score < 45:
-                    leaning = "🔵 Leans Defense"
-                    leaning_color = "#000080"
-                else:
-                    leaning = "⚪ Undecided"
-                    leaning_color = "#4a5568"
-
-                # Juror card header
-                st.markdown(f'''
-                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
-                    <span style="font-size: 2.5rem;">{emoji}</span>
-                    <div>
-                        <div style="font-family: 'Orbitron', monospace; font-size: 1rem; color: #e2e8f0;">{name}</div>
-                        <div style="font-size: 0.8rem; color: #64748b;">{occupation}</div>
-                    </div>
-                </div>
-                ''', unsafe_allow_html=True)
-
-                # Score display
-                col1, col2 = st.columns([1, 1])
-                with col1:
-                    st.metric("Bias Score", f"{score}/100")
-                with col2:
                     st.markdown(f'''
-                    <div style="padding: 0.5rem; background: rgba(0,0,0,0.3); border-left: 3px solid {leaning_color}; border-radius: 4px;">
-                        <div style="font-size: 0.75rem; color: #94a3b8;">Current Leaning</div>
-                        <div style="font-size: 0.9rem; color: #e2e8f0;">{leaning}</div>
+                    <div style="background: #1A1A1A; border: 1px solid rgba(255,255,255,0.04); border-left: 2px solid {leaning_color}; padding: 1rem; margin-bottom: 0.75rem;">
+                        <div style="font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; color: #EDE8E0;">{name}</div>
+                        <div style="font-family: 'Spectral', serif; font-size: 0.75rem; color: #6B6560; font-style: italic; margin-bottom: 0.5rem;">{occupation}</div>
+                        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 0.65rem; color: #A8A29E; margin-bottom: 0.5rem;">Score: {score} — {leaning}</div>
+                        <div style="font-family: 'Spectral', serif; font-size: 0.8rem; color: #6B6560; font-style: italic; line-height: 1.5;">{thought}</div>
                     </div>
                     ''', unsafe_allow_html=True)
 
-                st.markdown("---")
-                st.markdown("**💭 Internal Deliberation:**")
-                st.markdown(f'''
-                <div style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 4px; font-style: italic; color: #94a3b8; line-height: 1.6;">
-                    {thought}
-                </div>
-                ''', unsafe_allow_html=True)
-
     # ═══════════════════════════════════════════════════════════════════════════
-    # COURT PROCEEDINGS (Full Transcript)
+    # TRANSCRIPT
     # ═══════════════════════════════════════════════════════════════════════════
-    with st.expander("📜 Court Proceedings Transcript", expanded=False):
+    with st.expander("Full Transcript", expanded=False):
         for msg in orch.get_transcript():
             render_message(msg)
 
     # ═══════════════════════════════════════════════════════════════════════════
-    # Execute pending action (streaming goes to appropriate placeholders)
+    # EXECUTE PENDING ACTIONS
     # ═══════════════════════════════════════════════════════════════════════════
     if "pending_action" in st.session_state:
         action = st.session_state.pending_action
@@ -879,7 +763,7 @@ def main():
             elif action == "autonomous":
                 run_autonomous_trial(orch, plaintiff_stream_placeholder, defense_stream_placeholder, judge_placeholder)
         except Exception as e:
-            st.error(f"Error during proceedings: {e}")
+            st.error(f"Error: {e}")
             import traceback
             st.code(traceback.format_exc())
 
@@ -887,22 +771,22 @@ def main():
         st.rerun()
 
     # ═══════════════════════════════════════════════════════════════════════════
-    # SIDEBAR: Case Management & Controls
+    # SIDEBAR
     # ═══════════════════════════════════════════════════════════════════════════
     with st.sidebar:
-        st.markdown('<div class="sidebar-header">⚖️ Case Management</div>', unsafe_allow_html=True)
+        st.markdown('<div class="sidebar-title">Case Management</div>', unsafe_allow_html=True)
 
-        if st.button("🎭 Preview UI (Demo Mode)", use_container_width=True):
+        if st.button("Preview Demo", use_container_width=True):
             st.session_state.demo_mode = True
             st.rerun()
 
         st.divider()
 
         uploaded = st.file_uploader(
-            "📄 Submit Complaint (PDF)",
+            "Submit Complaint (PDF)",
             type=["pdf"],
             disabled=is_processing,
-            help="Upload a legal complaint document to begin the trial"
+            help="Upload a legal complaint to begin"
         )
 
         if uploaded and not st.session_state.upload_processed:
@@ -913,30 +797,30 @@ def main():
                 st.rerun()
 
         st.divider()
-        st.markdown("### 🎮 Trial Controls")
+        st.markdown("### Controls")
 
         phase = orch.phase
 
         if phase == TrialPhase.AWAITING_COMPLAINT:
             if orch.case_facts:
-                if st.button("⚖️ Initialize Court", disabled=is_processing, use_container_width=True):
+                if st.button("Initialize Court", disabled=is_processing, use_container_width=True):
                     st.session_state.is_processing = True
                     with st.spinner("Assembling court..."):
                         orch.initialize_court()
                     st.session_state.is_processing = False
                     st.rerun()
             else:
-                st.info("📄 Upload a complaint to begin")
+                st.caption("Upload a complaint to begin")
 
         elif phase == TrialPhase.COURT_ASSEMBLED:
             col1, col2 = st.columns(2)
             with col1:
-                if st.button("🎬 Begin Trial", disabled=is_processing, use_container_width=True):
+                if st.button("Begin Trial", disabled=is_processing, use_container_width=True):
                     st.session_state.is_processing = True
                     st.session_state.pending_action = "opening"
                     st.rerun()
             with col2:
-                if st.button("🤖 Auto Trial", disabled=is_processing, use_container_width=True, help="Agents debate automatically"):
+                if st.button("Auto Trial", disabled=is_processing, use_container_width=True, help="Autonomous debate"):
                     st.session_state.is_processing = True
                     st.session_state.pending_action = "autonomous"
                     st.session_state.trial_started = True
@@ -944,61 +828,59 @@ def main():
 
         elif phase == TrialPhase.ARGUMENTS:
             st.caption(f"Round {orch.current_round}")
-            if st.button("⚔️ Next Round", disabled=is_processing, use_container_width=True):
+            if st.button("Next Round", disabled=is_processing, use_container_width=True):
                 st.session_state.is_processing = True
                 st.session_state.pending_action = "argument"
                 st.rerun()
 
             if orch.current_round > 1:
-                if st.button("👥 Begin Deliberation", disabled=is_processing, use_container_width=True):
+                if st.button("Begin Deliberation", disabled=is_processing, use_container_width=True):
                     st.session_state.is_processing = True
                     st.session_state.pending_action = "jury"
                     st.rerun()
 
         elif phase == TrialPhase.JURY_DELIBERATION:
-            if st.button("📜 Render Verdict", disabled=is_processing, use_container_width=True):
+            if st.button("Render Verdict", disabled=is_processing, use_container_width=True):
                 st.session_state.is_processing = True
                 st.session_state.pending_action = "verdict"
                 st.rerun()
 
         elif phase == TrialPhase.ADJOURNED:
-            st.success("✅ Trial Complete")
+            st.success("Trial Complete")
             col1, col2 = st.columns(2)
             with col1:
-                if st.button("🔄 New Case", use_container_width=True):
+                if st.button("New Case", use_container_width=True):
                     st.session_state.orchestrator = TrialOrchestrator()
                     st.session_state.upload_processed = False
                     st.session_state.is_processing = False
                     st.session_state.juror_thoughts = {}
                     st.session_state.trial_started = False
-                    st.session_state.case_id = f"LU-{time.strftime('%Y')}-{hash(time.time()) % 100000:05d}"
+                    st.session_state.case_id = f"JEM-{time.strftime('%Y')}-{hash(time.time()) % 100000:05d}"
                     if "pending_action" in st.session_state:
                         del st.session_state.pending_action
                     st.rerun()
             with col2:
-                if st.button("💾 Export", use_container_width=True):
+                if st.button("Export", use_container_width=True):
                     filepath = orch.export_transcript()
-                    st.success("Saved!")
+                    st.success("Saved")
 
         if is_processing:
-            st.warning("⏳ Processing...")
+            st.markdown('''
+            <div class="streaming-indicator" style="margin-top: 1rem;">
+                <span class="streaming-dot"></span>
+                <span>Processing</span>
+            </div>
+            ''', unsafe_allow_html=True)
 
         st.divider()
-        st.markdown("### 📊 Session Status")
+        st.markdown("### Status")
 
-        status_color = "#C5A059" if phase != TrialPhase.ADJOURNED else "#4a5568"
+        status_color = "#8B7355" if phase != TrialPhase.ADJOURNED else "#4A4845"
         st.markdown(f'''
-        <div style="
-            padding: 0.75rem;
-            background: rgba(0,0,0,0.3);
-            border-left: 3px solid {status_color};
-            border-radius: 4px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.8rem;
-        ">
-            <strong>Phase:</strong> {phase_display}<br>
-            <strong>Case:</strong> {st.session_state.case_id}<br>
-            <strong>Round:</strong> {orch.current_round if hasattr(orch, 'current_round') else 0}
+        <div class="session-status">
+            <strong>Phase:</strong> <span>{phase_display}</span><br>
+            <strong>Case:</strong> <span>{st.session_state.case_id}</span><br>
+            <strong>Round:</strong> <span>{orch.current_round if hasattr(orch, 'current_round') else 0}</span>
         </div>
         ''', unsafe_allow_html=True)
 
