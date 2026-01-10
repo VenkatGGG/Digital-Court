@@ -713,28 +713,35 @@ def get_css() -> str:
         display: none !important;
     }
 
-    /* Custom + / - Indicator */
+    /* Custom Chevron Indicator */
     .stExpander details summary {
         position: relative !important;
-        padding-left: 1.2rem !important;
+        padding-left: 1.5rem !important;
         list-style: none !important;
     }
 
     .stExpander details summary::after {
-        content: '+';
+        content: '';
         position: absolute;
-        left: 0;
-        top: 50%;
-        transform: translateY(-50%);
-        font-family: var(--font-mono);
-        font-weight: bold;
-        font-size: 0.9rem;
-        color: var(--accent);
+        left: 0.2rem;
+        top: 0.5rem;
+        width: 0.4rem;
+        height: 0.4rem;
+        border-right: 2px solid var(--text-muted);
+        border-bottom: 2px solid var(--text-muted);
+        transform: rotate(-45deg);
+        transition: all 0.2s ease;
+        transform-origin: center;
+    }
+
+    .stExpander details:hover summary::after {
+        border-color: var(--accent);
     }
 
     .stExpander details[open] summary::after {
-        content: '-';
-        color: var(--text-primary);
+        transform: rotate(45deg);
+        top: 0.4rem;
+        border-color: var(--accent);
     }
 
     /* Sidebar */
