@@ -245,6 +245,7 @@ def main():
             text = extract_pdf_text(uploaded)
             if text:
                 orch.set_case(text, uploaded.name.replace(".pdf", ""))
+                orch.initialize_court()
                 st.session_state.upload_processed = True
                 st.rerun()
 
