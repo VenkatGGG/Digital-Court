@@ -87,9 +87,15 @@ def get_css() -> str:
     }
 
     /* Hide Streamlit chrome */
-    #MainMenu, footer, header[data-testid="stHeader"] {
+    /* Hide Streamlit chrome but keep sidebar toggle accessible */
+    #MainMenu, footer {
         visibility: hidden !important;
         height: 0 !important;
+    }
+    
+    header[data-testid="stHeader"] {
+        background: transparent !important;
+        border-bottom: none !important;
     }
 
     /* ══════════════════════════════════════════════════════════════════════════
