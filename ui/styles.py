@@ -690,12 +690,28 @@ def get_css() -> str:
         border: 1px solid var(--border-subtle) !important;
     }
 
-    .stExpander > div > div > div > div {
+    .stExpander details summary p {
         font-family: var(--font-mono) !important;
         font-size: 0.7rem !important;
         letter-spacing: 0.1em !important;
         text-transform: uppercase !important;
         color: var(--text-secondary) !important;
+    }
+
+    /* Remove default arrow/chevron */
+    .stExpander details summary svg {
+        display: none !important;
+    }
+    .stExpander details summary::marker {
+        display: none !important;
+        content: "";
+    }
+    .stExpander details summary::-webkit-details-marker {
+        display: none !important;
+    }
+    /* Hide potential text-based icons */
+    .stExpander details summary span:first-child {
+        display: none !important;
     }
 
     /* Sidebar */
