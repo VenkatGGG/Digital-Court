@@ -47,17 +47,17 @@ from ui.phases import (
 settings = get_settings()
 
 # Sidebar state management
-_base_state = "collapsed" if (hasattr(st, 'session_state') and st.session_state.get('trial_started', False)) else "expanded"
-_sidebar_state = st.session_state.get("sidebar_visible", _base_state) if hasattr(st, "session_state") else _base_state
+_sidebar_state = "expanded"
 
 if hasattr(st, 'session_state') and 'sidebar_visible' in st.session_state:
     _sidebar_state = "expanded" if st.session_state.sidebar_visible else "collapsed"
 
 st.set_page_config(
     page_title="Justicia Ex Machina",
-    page_icon="",
+    page_icon="⚖️",
     layout="wide",
     initial_sidebar_state=_sidebar_state
+
 )
 
 # Apply CSS
