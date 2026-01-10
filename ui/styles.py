@@ -698,7 +698,7 @@ def get_css() -> str:
         color: var(--text-secondary) !important;
     }
 
-    /* Remove default arrow/chevron */
+    /* Remove default arrow/chevron but add custom indicator */
     .stExpander details summary svg {
         display: none !important;
     }
@@ -709,9 +709,32 @@ def get_css() -> str:
     .stExpander details summary::-webkit-details-marker {
         display: none !important;
     }
-    /* Hide potential text-based icons */
     .stExpander details summary span:first-child {
         display: none !important;
+    }
+
+    /* Custom + / - Indicator */
+    .stExpander details summary {
+        position: relative !important;
+        padding-left: 1.2rem !important;
+        list-style: none !important;
+    }
+
+    .stExpander details summary::after {
+        content: '+';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        font-family: var(--font-mono);
+        font-weight: bold;
+        font-size: 0.9rem;
+        color: var(--accent);
+    }
+
+    .stExpander details[open] summary::after {
+        content: '-';
+        color: var(--text-primary);
     }
 
     /* Sidebar */
