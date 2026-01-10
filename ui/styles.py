@@ -1,852 +1,839 @@
 """
-ui/styles.py - LEX UMBRA: The Shadow Court Aesthetic
+ui/styles.py - JUSTICIA EX MACHINA: The Weight of Algorithmic Justice
 
-Cyber-noir judicial interface styling with dramatic visual hierarchy.
+A strikingly minimal design system that embodies the tension between
+ancient judicial tradition and cold computational precision.
+
+Design Philosophy: "Judicial Minimalism"
+  - The gravitas of black robes and marble halls
+  - The exactitude of legal documents
+  - The coldness of algorithmic decision-making
+  - Extreme negative space, purposeful typography
+
 Color System:
-  - Background: Dark Slate (#0e1117) - The "Shadow"
-  - Judge: Muted Gold (#C5A059) - Authority
-  - Plaintiff: Muted Crimson (#8B0000) - Aggression
-  - Defense: Navy Blue (#000080) - Stability
-  - Jury: Neutral Grey → Green (Convinced) / Red (Skeptical)
+  - Canvas: Near-black (#0B0B0B) - Judicial robes
+  - Surface: Off-black (#141414) - Depth and layering
+  - Text: Warm cream (#EDE8E0) - Aged parchment
+  - Accent: Muted brass (#8B7355) - Scales of justice
+  - Plaintiff: Deep wine (#4A1C1C) - Subdued aggression
+  - Defense: Deep slate (#1C2A4A) - Calm stability
 """
 
 
 def get_css() -> str:
-    """Get the complete CSS for the Lex Umbra application."""
+    """Get the complete CSS for Justicia Ex Machina."""
     return """
 <style>
     /* ══════════════════════════════════════════════════════════════════════════
-       IMPORTS & ROOT VARIABLES
+       TYPOGRAPHY - Classical Meets Computational
        ══════════════════════════════════════════════════════════════════════════ */
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=IBM+Plex+Mono:wght@300;400;500&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap');
 
     :root {
-        --shadow-black: #0a0c10;
-        --slate-dark: #0e1117;
-        --slate-mid: #1a1f2e;
-        --slate-light: #262d40;
+        /* The Ink & Parchment Palette */
+        --canvas: #0B0B0B;
+        --surface: #141414;
+        --surface-elevated: #1A1A1A;
+        --surface-hover: #1F1F1F;
 
-        --judge-gold: #C5A059;
-        --judge-gold-dim: #8B7355;
-        --judge-gold-glow: rgba(197, 160, 89, 0.3);
+        --text-primary: #EDE8E0;
+        --text-secondary: #A8A29E;
+        --text-tertiary: #6B6560;
+        --text-muted: #4A4845;
 
-        --plaintiff-crimson: #8B0000;
-        --plaintiff-crimson-light: #A52A2A;
-        --plaintiff-glow: rgba(139, 0, 0, 0.25);
+        --accent: #8B7355;
+        --accent-dim: #6B5A48;
+        --accent-glow: rgba(139, 115, 85, 0.08);
 
-        --defense-navy: #000080;
-        --defense-navy-light: #191970;
-        --defense-glow: rgba(0, 0, 128, 0.25);
+        --plaintiff: #4A1C1C;
+        --plaintiff-text: #D4A5A5;
+        --plaintiff-border: #6B2A2A;
 
-        --jury-neutral: #4a5568;
-        --jury-agree: #2d5a3d;
-        --jury-skeptic: #5a2d2d;
+        --defense: #1C2A4A;
+        --defense-text: #A5B8D4;
+        --defense-border: #2A3A6B;
 
-        --text-primary: #e2e8f0;
-        --text-secondary: #94a3b8;
-        --text-dim: #64748b;
+        --verdict: #2A4A2A;
+        --verdict-text: #A5D4A5;
 
-        --border-subtle: rgba(255, 255, 255, 0.06);
-        --border-glow: rgba(197, 160, 89, 0.15);
+        --border: rgba(139, 115, 85, 0.12);
+        --border-subtle: rgba(255, 255, 255, 0.04);
+        --border-strong: rgba(139, 115, 85, 0.25);
+
+        /* Typography Scale */
+        --font-display: 'Cormorant Garamond', Georgia, serif;
+        --font-body: 'Spectral', Georgia, serif;
+        --font-mono: 'IBM Plex Mono', 'Consolas', monospace;
+
+        /* Spacing Scale */
+        --space-xs: 0.25rem;
+        --space-sm: 0.5rem;
+        --space-md: 1rem;
+        --space-lg: 1.5rem;
+        --space-xl: 2.5rem;
+        --space-2xl: 4rem;
     }
 
     /* ══════════════════════════════════════════════════════════════════════════
-       GLOBAL RESETS & BASE STYLES
+       GLOBAL FOUNDATION
        ══════════════════════════════════════════════════════════════════════════ */
     .stApp {
-        background: linear-gradient(180deg, var(--shadow-black) 0%, var(--slate-dark) 50%, var(--shadow-black) 100%) !important;
-        background-attachment: fixed !important;
-    }
-
-    .stApp::before {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background:
-            radial-gradient(ellipse at 50% 0%, rgba(197, 160, 89, 0.03) 0%, transparent 50%),
-            radial-gradient(ellipse at 0% 50%, rgba(139, 0, 0, 0.02) 0%, transparent 40%),
-            radial-gradient(ellipse at 100% 50%, rgba(0, 0, 128, 0.02) 0%, transparent 40%);
-        pointer-events: none;
-        z-index: 0;
+        background: var(--canvas) !important;
     }
 
     .main .block-container {
-        padding-top: 1rem !important;
-        padding-bottom: 2rem !important;
+        padding: 1.5rem 2rem 3rem 2rem !important;
         max-width: 100% !important;
     }
 
-    /* Hide Streamlit branding */
+    /* Hide Streamlit chrome */
     #MainMenu, footer, header[data-testid="stHeader"] {
         visibility: hidden !important;
         height: 0 !important;
     }
 
     /* ══════════════════════════════════════════════════════════════════════════
-       TYPOGRAPHY
+       TYPOGRAPHY SYSTEM
        ══════════════════════════════════════════════════════════════════════════ */
-    h1, h2, h3, .header-text {
-        font-family: 'Orbitron', monospace !important;
-        letter-spacing: 0.1em !important;
-        text-transform: uppercase !important;
+
+    /* Display headings - Classical serif */
+    h1, h2, h3, .display-text {
+        font-family: var(--font-display) !important;
+        font-weight: 400 !important;
+        letter-spacing: 0.02em !important;
+        color: var(--text-primary) !important;
     }
 
-    p, span, div, .stMarkdown, li {
-        font-family: 'Rajdhani', sans-serif !important;
+    /* Body text - Refined serif */
+    p, span, div, li, .stMarkdown {
+        font-family: var(--font-body) !important;
         font-weight: 400;
-        letter-spacing: 0.02em;
+        letter-spacing: 0.01em;
+        line-height: 1.7;
+        color: var(--text-secondary);
     }
 
-    code, .mono-text {
-        font-family: 'JetBrains Mono', monospace !important;
+    /* Monospace - Technical precision */
+    code, pre, .mono-text {
+        font-family: var(--font-mono) !important;
+        font-size: 0.85rem;
+        letter-spacing: -0.01em;
     }
 
     /* ══════════════════════════════════════════════════════════════════════════
-       ZONE A: THE HEADER
+       THE HEADER - Restrained Authority
        ══════════════════════════════════════════════════════════════════════════ */
-    .main-title {
-        font-family: 'Orbitron', monospace !important;
-        font-size: 2.8rem !important;
-        font-weight: 900 !important;
-        text-align: center !important;
-        color: var(--judge-gold) !important;
-        text-shadow:
-            0 0 30px var(--judge-gold-glow),
-            0 0 60px rgba(197, 160, 89, 0.15) !important;
+    .court-header {
+        text-align: center;
+        padding: var(--space-xl) 0 var(--space-lg) 0;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: var(--space-xl);
+    }
+
+    .court-title {
+        font-family: var(--font-display) !important;
+        font-size: 2.5rem !important;
+        font-weight: 300 !important;
+        letter-spacing: 0.25em !important;
+        text-transform: uppercase;
+        color: var(--text-primary) !important;
+        margin: 0 0 var(--space-sm) 0 !important;
+    }
+
+    .court-subtitle {
+        font-family: var(--font-mono) !important;
+        font-size: 0.7rem !important;
+        font-weight: 400;
         letter-spacing: 0.3em !important;
-        margin-bottom: 0.25rem !important;
-        padding-top: 0.5rem !important;
+        text-transform: uppercase;
+        color: var(--text-tertiary) !important;
     }
 
-    .main-subtitle {
-        font-family: 'Rajdhani', sans-serif !important;
-        font-size: 1rem !important;
-        text-align: center !important;
-        color: var(--text-dim) !important;
-        letter-spacing: 0.5em !important;
-        text-transform: uppercase !important;
-        margin-bottom: 1.5rem !important;
+    /* ══════════════════════════════════════════════════════════════════════════
+       STATUS INDICATOR - Minimal Data Display
+       ══════════════════════════════════════════════════════════════════════════ */
+    .trial-status {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: var(--space-xl);
+        padding: var(--space-md) var(--space-xl);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        margin: 0 auto var(--space-xl) auto;
+        max-width: 700px;
     }
 
-    /* Prominent Trial Status Banner */
-    .trial-status-banner {
+    .status-segment {
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 0.75rem;
-        padding: 1rem 2rem;
-        background: linear-gradient(180deg, rgba(197, 160, 89, 0.15), rgba(197, 160, 89, 0.05));
-        border: 2px solid var(--judge-gold-dim);
-        border-radius: 8px;
-        margin: 0 auto 1.5rem auto;
-        max-width: 600px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 40px var(--judge-gold-glow);
-        animation: status-glow 3s ease-in-out infinite;
-    }
-
-    @keyframes status-glow {
-        0%, 100% { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 30px var(--judge-gold-glow); }
-        50% { box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 50px var(--judge-gold-glow); }
-    }
-
-    .status-phase-main {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-    }
-
-    .phase-icon {
-        font-size: 1.5rem;
-        animation: phase-pulse 2s ease-in-out infinite;
-    }
-
-    .phase-text {
-        font-family: 'Orbitron', monospace !important;
-        font-size: 1.4rem;
-        font-weight: 700;
-        color: var(--judge-gold);
-        text-transform: uppercase;
-        letter-spacing: 0.2em;
-        text-shadow: 0 0 20px var(--judge-gold-glow);
-    }
-
-    .status-details {
-        display: flex;
-        justify-content: center;
-        gap: 2rem;
-    }
-
-    .status-bar {
-        display: flex;
-        justify-content: center;
-        gap: 3rem;
-        padding: 0.75rem 2rem;
-        background: linear-gradient(90deg, transparent, var(--slate-mid), transparent);
-        border-top: 1px solid var(--border-subtle);
-        border-bottom: 1px solid var(--border-subtle);
-        margin-bottom: 1.5rem;
-    }
-
-    .status-item {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
+        gap: var(--space-xs);
     }
 
     .status-label {
-        font-family: 'JetBrains Mono', monospace !important;
-        font-size: 0.65rem;
-        color: var(--text-dim);
+        font-family: var(--font-mono) !important;
+        font-size: 0.6rem;
+        font-weight: 500;
+        letter-spacing: 0.15em;
         text-transform: uppercase;
-        letter-spacing: 0.1em;
+        color: var(--text-muted);
     }
 
     .status-value {
-        font-family: 'Orbitron', monospace !important;
-        font-size: 0.75rem;
-        color: var(--text-secondary);
+        font-family: var(--font-display) !important;
+        font-size: 1rem;
         font-weight: 500;
-        padding: 0.2rem 0.5rem;
-        background: rgba(0, 0, 0, 0.3);
-        border: 1px solid var(--border-subtle);
-        border-radius: 2px;
+        letter-spacing: 0.05em;
+        color: var(--accent);
     }
 
-    .phase-indicator {
-        animation: phase-pulse 2s ease-in-out infinite;
-    }
-
-    @keyframes phase-pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.7; }
+    .status-divider {
+        width: 1px;
+        height: 2rem;
+        background: var(--border);
     }
 
     /* ══════════════════════════════════════════════════════════════════════════
-       ZONE B: THE JUDGE'S BENCH
+       THE BENCH - Judicial Authority
        ══════════════════════════════════════════════════════════════════════════ */
-    .judge-bench {
-        background: linear-gradient(180deg, var(--slate-mid) 0%, var(--slate-dark) 100%);
-        border: 2px solid var(--judge-gold-dim);
-        border-top: 4px solid var(--judge-gold);
-        border-radius: 4px;
-        padding: 1.5rem 2rem;
-        margin: 0 auto 1.5rem auto;
+    .bench {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-top: 2px solid var(--accent);
+        padding: var(--space-xl);
+        margin: 0 auto var(--space-xl) auto;
         max-width: 900px;
         position: relative;
-        box-shadow:
-            0 10px 40px rgba(0, 0, 0, 0.5),
-            0 0 60px var(--judge-gold-glow),
-            inset 0 1px 0 rgba(197, 160, 89, 0.1);
     }
 
-    .judge-bench::before {
-        content: '⚖';
+    .bench::before {
+        content: '';
         position: absolute;
-        top: -1rem;
+        top: 0;
         left: 50%;
         transform: translateX(-50%);
-        font-size: 1.5rem;
-        background: var(--slate-dark);
-        padding: 0 1rem;
-        color: var(--judge-gold);
+        width: 60px;
+        height: 2px;
+        background: var(--accent);
     }
 
-    .judge-header {
-        font-family: 'Orbitron', monospace !important;
-        font-size: 0.75rem;
-        color: var(--judge-gold);
+    .bench-label {
+        font-family: var(--font-mono) !important;
+        font-size: 0.6rem;
+        font-weight: 500;
+        letter-spacing: 0.2em;
         text-transform: uppercase;
-        letter-spacing: 0.3em;
+        color: var(--text-muted);
         text-align: center;
-        margin-bottom: 1rem;
-        padding-bottom: 0.75rem;
-        border-bottom: 1px solid var(--border-glow);
+        margin-bottom: var(--space-lg);
     }
 
-    .judge-content {
-        font-family: 'Rajdhani', sans-serif !important;
-        font-size: 1.1rem;
+    .bench-content {
+        font-family: var(--font-body) !important;
+        font-size: 1.05rem;
+        line-height: 1.9;
         color: var(--text-primary);
-        line-height: 1.8;
         text-align: center;
     }
 
-    .judge-content strong {
-        color: var(--judge-gold);
+    .bench-content strong {
         font-weight: 600;
+        color: var(--accent);
     }
 
-    .judge-content em {
-        color: var(--text-secondary);
+    .bench-content em {
         font-style: italic;
+        color: var(--text-secondary);
     }
 
     /* ══════════════════════════════════════════════════════════════════════════
-       ZONE C: THE WELL - COUNSEL TABLES
+       COUNSEL BOXES - Adversarial Symmetry
        ══════════════════════════════════════════════════════════════════════════ */
-    .counsel-table {
-        background: linear-gradient(180deg, var(--slate-mid) 0%, rgba(14, 17, 23, 0.95) 100%);
-        border-radius: 4px;
-        padding: 1rem;
-        min-height: 400px;
-        max-height: 500px;
-        overflow-y: auto;
-        position: relative;
-    }
-
-    /* Plaintiff Styling */
-    .plaintiff-table {
-        border: 1px solid var(--plaintiff-crimson);
-        border-left: 4px solid var(--plaintiff-crimson);
-        box-shadow:
-            -5px 0 30px var(--plaintiff-glow),
-            inset 0 0 30px rgba(139, 0, 0, 0.05);
-    }
-
-    .plaintiff-table::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: linear-gradient(90deg, var(--plaintiff-crimson), transparent);
-    }
-
-    .plaintiff-header {
-        font-family: 'Orbitron', monospace !important;
-        font-size: 0.7rem;
-        color: var(--plaintiff-crimson-light);
-        text-transform: uppercase;
-        letter-spacing: 0.25em;
-        padding-bottom: 0.75rem;
-        margin-bottom: 1rem;
-        border-bottom: 1px solid rgba(139, 0, 0, 0.3);
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .plaintiff-header::before {
-        content: '🔴';
-        font-size: 0.5rem;
-    }
-
-    /* Defense Styling */
-    .defense-table {
-        border: 1px solid var(--defense-navy);
-        border-right: 4px solid var(--defense-navy);
-        box-shadow:
-            5px 0 30px var(--defense-glow),
-            inset 0 0 30px rgba(0, 0, 128, 0.05);
-    }
-
-    .defense-table::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, var(--defense-navy));
-    }
-
-    .defense-header {
-        font-family: 'Orbitron', monospace !important;
-        font-size: 0.7rem;
-        color: var(--defense-navy-light);
-        text-transform: uppercase;
-        letter-spacing: 0.25em;
-        padding-bottom: 0.75rem;
-        margin-bottom: 1rem;
-        border-bottom: 1px solid rgba(0, 0, 128, 0.3);
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        gap: 0.5rem;
-    }
-
-    .defense-header::after {
-        content: '🔵';
-        font-size: 0.5rem;
-    }
-
-    /* Message Bubbles */
-    .counsel-message {
-        padding: 0.75rem 1rem;
-        margin-bottom: 0.75rem;
-        border-radius: 4px;
-        font-family: 'Rajdhani', sans-serif !important;
-        font-size: 0.95rem;
-        line-height: 1.6;
-        color: var(--text-primary);
-        position: relative;
-        animation: fadeInUp 0.4s ease forwards;
-    }
-
-    .plaintiff-message {
-        background: linear-gradient(135deg, rgba(139, 0, 0, 0.15), rgba(139, 0, 0, 0.05));
-        border-left: 2px solid var(--plaintiff-crimson);
-    }
-
-    .defense-message {
-        background: linear-gradient(135deg, rgba(0, 0, 128, 0.05), rgba(0, 0, 128, 0.15));
-        border-right: 2px solid var(--defense-navy);
-        text-align: right;
-    }
-
-    .message-time {
-        font-family: 'JetBrains Mono', monospace !important;
-        font-size: 0.65rem;
-        color: var(--text-dim);
-        margin-top: 0.5rem;
-    }
-
-    .message-sender {
-        font-family: 'Orbitron', monospace !important;
-        font-size: 0.6rem;
-        color: var(--text-secondary);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        margin-bottom: 0.5rem;
-        opacity: 0.8;
-    }
-
-    /* Evidence Stand */
-    .evidence-stand {
-        background: linear-gradient(180deg, var(--slate-mid) 0%, var(--slate-dark) 100%);
+    .counsel-box {
+        background: var(--surface);
         border: 1px solid var(--border-subtle);
-        border-radius: 4px;
-        padding: 1rem;
-        min-height: 400px;
-        position: relative;
+        min-height: 420px;
+        display: flex;
+        flex-direction: column;
     }
 
-    .evidence-stand::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 60%;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, var(--text-dim), transparent);
+    .counsel-box-plaintiff {
+        border-left: 2px solid var(--plaintiff-border);
     }
 
-    .evidence-header {
-        font-family: 'Orbitron', monospace !important;
-        font-size: 0.7rem;
-        color: var(--text-secondary);
+    .counsel-box-defense {
+        border-right: 2px solid var(--defense-border);
+    }
+
+    .counsel-header {
+        font-family: var(--font-mono) !important;
+        font-size: 0.6rem;
+        font-weight: 500;
+        letter-spacing: 0.15em;
         text-transform: uppercase;
-        letter-spacing: 0.25em;
-        text-align: center;
-        padding-bottom: 0.75rem;
-        margin-bottom: 1rem;
+        padding: var(--space-md) var(--space-lg);
         border-bottom: 1px solid var(--border-subtle);
     }
 
-    .evidence-content {
-        font-family: 'Rajdhani', sans-serif !important;
-        font-size: 0.9rem;
-        color: var(--text-secondary);
-        line-height: 1.7;
+    .counsel-header-plaintiff {
+        color: var(--plaintiff-text);
+        background: rgba(74, 28, 28, 0.15);
     }
 
-    .evidence-content strong {
+    .counsel-header-defense {
+        color: var(--defense-text);
+        background: rgba(28, 42, 74, 0.15);
+        text-align: right;
+    }
+
+    .counsel-content {
+        flex: 1;
+        padding: var(--space-md);
+        overflow-y: auto;
+        max-height: 350px;
+    }
+
+    .counsel-empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        font-family: var(--font-body) !important;
+        font-style: italic;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+
+    /* Argument entries */
+    .argument-entry {
+        margin-bottom: var(--space-md);
+        padding-bottom: var(--space-md);
+        border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .argument-entry:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+    }
+
+    .argument-round {
+        font-family: var(--font-mono) !important;
+        font-size: 0.6rem;
+        font-weight: 500;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: var(--space-xs);
+    }
+
+    .argument-text {
+        font-family: var(--font-body) !important;
+        font-size: 0.9rem;
+        line-height: 1.7;
         color: var(--text-primary);
-        font-weight: 600;
+    }
+
+    .argument-plaintiff .argument-text {
+        border-left: 2px solid var(--plaintiff-border);
+        padding-left: var(--space-md);
+    }
+
+    .argument-defense .argument-text {
+        border-right: 2px solid var(--defense-border);
+        padding-right: var(--space-md);
+        text-align: right;
+    }
+
+    /* Collapsible arguments */
+    .argument-collapse {
+        background: transparent;
+        border: 1px solid var(--border-subtle);
+        margin-bottom: var(--space-sm);
+        overflow: hidden;
+    }
+
+    .argument-collapse summary {
+        padding: var(--space-sm) var(--space-md);
+        cursor: pointer;
+        font-family: var(--font-mono) !important;
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        list-style: none;
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+        transition: background 0.15s ease;
+    }
+
+    .argument-collapse summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .argument-collapse summary::before {
+        content: '+';
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        transition: transform 0.15s ease;
+    }
+
+    .argument-collapse[open] summary::before {
+        content: '-';
+    }
+
+    .argument-collapse summary:hover {
+        background: var(--surface-hover);
+    }
+
+    .argument-collapse-content {
+        padding: var(--space-md);
+        background: rgba(0, 0, 0, 0.2);
+        border-top: 1px solid var(--border-subtle);
+        font-family: var(--font-body) !important;
+        font-size: 0.85rem;
+        line-height: 1.7;
+        color: var(--text-primary);
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .argument-collapse-plaintiff {
+        border-left: 2px solid var(--plaintiff-border);
+    }
+
+    .argument-collapse-defense {
+        border-left: 2px solid var(--defense-border);
     }
 
     /* ══════════════════════════════════════════════════════════════════════════
-       ZONE D: THE JURY BOX
+       EVIDENCE STAND - Documentary Display
        ══════════════════════════════════════════════════════════════════════════ */
-    .jury-box {
-        background: linear-gradient(180deg, var(--slate-dark) 0%, var(--shadow-black) 100%);
+    .evidence-box {
+        background: var(--surface);
         border: 1px solid var(--border-subtle);
-        border-top: 2px solid var(--jury-neutral);
-        border-radius: 4px;
-        padding: 1.25rem;
-        margin-top: 1.5rem;
+        min-height: 420px;
     }
 
-    .jury-header {
-        font-family: 'Orbitron', monospace !important;
-        font-size: 0.7rem;
-        color: var(--text-dim);
+    .evidence-header {
+        font-family: var(--font-mono) !important;
+        font-size: 0.6rem;
+        font-weight: 500;
+        letter-spacing: 0.15em;
         text-transform: uppercase;
-        letter-spacing: 0.3em;
+        color: var(--text-muted);
+        padding: var(--space-md) var(--space-lg);
+        border-bottom: 1px solid var(--border-subtle);
         text-align: center;
-        margin-bottom: 1rem;
     }
 
-    .juror-grid {
+    .evidence-content {
+        padding: var(--space-lg);
+    }
+
+    .case-title-display {
+        font-family: var(--font-display) !important;
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        text-align: center;
+        padding: var(--space-md);
+        border: 1px solid var(--border);
+        margin-bottom: var(--space-lg);
+        background: var(--surface-elevated);
+    }
+
+    .case-excerpt {
+        font-family: var(--font-body) !important;
+        font-size: 0.85rem;
+        line-height: 1.8;
+        color: var(--text-secondary);
+    }
+
+    /* ══════════════════════════════════════════════════════════════════════════
+       THE JURY - Collective Judgment
+       ══════════════════════════════════════════════════════════════════════════ */
+    .jury-section {
+        background: var(--surface);
+        border: 1px solid var(--border-subtle);
+        border-top: 2px solid var(--text-muted);
+        padding: var(--space-lg);
+        margin-top: var(--space-xl);
+    }
+
+    .jury-label {
+        font-family: var(--font-mono) !important;
+        font-size: 0.6rem;
+        font-weight: 500;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        text-align: center;
+        margin-bottom: var(--space-lg);
+    }
+
+    .jury-grid {
         display: grid;
         grid-template-columns: repeat(6, 1fr);
-        gap: 0.75rem;
+        gap: var(--space-md);
     }
 
     @media (max-width: 1200px) {
-        .juror-grid {
+        .jury-grid {
             grid-template-columns: repeat(3, 1fr);
         }
     }
 
     @media (max-width: 768px) {
-        .juror-grid {
+        .jury-grid {
             grid-template-columns: repeat(2, 1fr);
         }
     }
 
-    .juror-card {
-        background: linear-gradient(180deg, var(--slate-mid), var(--slate-dark));
+    .juror {
+        background: var(--surface-elevated);
         border: 1px solid var(--border-subtle);
-        border-radius: 4px;
-        padding: 0.75rem;
+        padding: var(--space-md);
         text-align: center;
-        position: relative;
-        transition: all 0.3s ease;
-        overflow: hidden;
+        transition: border-color 0.2s ease;
     }
 
-    .juror-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: var(--jury-neutral);
-        transition: background 0.3s ease;
+    .juror:hover {
+        border-color: var(--border);
     }
 
-    .juror-card.leaning-plaintiff::before {
-        background: linear-gradient(90deg, var(--plaintiff-crimson), var(--plaintiff-crimson-light));
+    .juror-plaintiff {
+        border-top: 2px solid var(--plaintiff-border);
     }
 
-    .juror-card.leaning-defense::before {
-        background: linear-gradient(90deg, var(--defense-navy-light), var(--defense-navy));
+    .juror-defense {
+        border-top: 2px solid var(--defense-border);
     }
 
-    .juror-card:hover {
-        transform: translateY(-2px);
-        border-color: var(--text-dim);
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    .juror-neutral {
+        border-top: 2px solid var(--text-muted);
     }
 
-    .juror-avatar {
-        font-size: 1.75rem;
-        margin-bottom: 0.25rem;
-        filter: grayscale(20%);
+    .juror-id {
+        font-family: var(--font-mono) !important;
+        font-size: 0.6rem;
+        font-weight: 500;
+        letter-spacing: 0.1em;
+        color: var(--text-muted);
+        margin-bottom: var(--space-xs);
     }
 
     .juror-name {
-        font-family: 'Orbitron', monospace !important;
-        font-size: 0.6rem;
+        font-family: var(--font-display) !important;
+        font-size: 1rem;
+        font-weight: 500;
         color: var(--text-primary);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        margin-bottom: 0.25rem;
+        margin-bottom: var(--space-xs);
     }
 
-    .juror-occupation {
-        font-family: 'JetBrains Mono', monospace !important;
-        font-size: 0.55rem;
-        color: var(--text-dim);
-        margin-bottom: 0.5rem;
+    .juror-role {
+        font-family: var(--font-body) !important;
+        font-size: 0.7rem;
+        color: var(--text-tertiary);
+        font-style: italic;
+        margin-bottom: var(--space-sm);
     }
 
-    /* Sentiment Bar */
-    .sentiment-container {
-        margin: 0.5rem 0;
-    }
-
-    .sentiment-bar-bg {
-        height: 6px;
-        background: var(--slate-light);
-        border-radius: 3px;
-        overflow: hidden;
+    /* Sentiment bar - minimal visualization */
+    .sentiment-track {
+        height: 4px;
+        background: var(--surface);
+        margin: var(--space-sm) 0;
         position: relative;
+        overflow: hidden;
     }
 
-    .sentiment-bar-bg::before {
+    .sentiment-track::before {
         content: '';
         position: absolute;
         left: 50%;
         top: 0;
         bottom: 0;
         width: 1px;
-        background: var(--text-dim);
+        background: var(--text-muted);
     }
 
-    .sentiment-bar {
+    .sentiment-fill {
         height: 100%;
-        border-radius: 3px;
-        transition: width 0.5s ease, background 0.3s ease;
+        transition: width 0.4s ease;
     }
 
-    .sentiment-bar.plaintiff-leaning {
-        background: linear-gradient(90deg, var(--slate-light), var(--plaintiff-crimson));
+    .sentiment-fill-plaintiff {
+        background: linear-gradient(90deg, var(--surface), var(--plaintiff-border));
         margin-left: auto;
     }
 
-    .sentiment-bar.defense-leaning {
-        background: linear-gradient(90deg, var(--defense-navy), var(--slate-light));
+    .sentiment-fill-defense {
+        background: linear-gradient(90deg, var(--defense-border), var(--surface));
     }
 
-    .sentiment-label {
-        font-family: 'JetBrains Mono', monospace !important;
+    .juror-leaning {
+        font-family: var(--font-mono) !important;
         font-size: 0.55rem;
-        color: var(--text-dim);
-        margin-top: 0.25rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        margin-top: var(--space-xs);
     }
 
-    /* Thought Bubble */
-    .thought-bubble {
-        background: rgba(0, 0, 0, 0.3);
-        border: 1px solid var(--border-subtle);
-        border-radius: 4px;
-        padding: 0.5rem;
-        margin-top: 0.5rem;
-        font-family: 'Rajdhani', sans-serif !important;
-        font-size: 0.7rem;
+    .leaning-plaintiff {
+        color: var(--plaintiff-text);
+    }
+
+    .leaning-defense {
+        color: var(--defense-text);
+    }
+
+    .leaning-neutral {
+        color: var(--text-muted);
+    }
+
+    .juror-thought {
+        font-family: var(--font-body) !important;
+        font-size: 0.75rem;
         font-style: italic;
-        color: var(--text-secondary);
-        line-height: 1.4;
+        color: var(--text-tertiary);
+        margin-top: var(--space-sm);
+        line-height: 1.5;
         min-height: 2.5rem;
     }
 
-    .thought-bubble::before {
-        content: '💭 ';
-        opacity: 0.5;
-    }
-
     /* ══════════════════════════════════════════════════════════════════════════
-       CHAT MESSAGES (Legacy Support)
+       VERDICT DISPLAY
        ══════════════════════════════════════════════════════════════════════════ */
-    .chat-message {
-        padding: 1rem 1.25rem;
-        border-radius: 4px;
-        margin-bottom: 0.75rem;
-        font-family: 'Rajdhani', sans-serif !important;
-        line-height: 1.7;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        animation: fadeInUp 0.4s ease forwards;
+    .verdict-display {
+        background: var(--surface);
+        border: 2px solid var(--accent);
+        padding: var(--space-2xl);
+        margin: var(--space-xl) auto;
+        max-width: 600px;
+        text-align: center;
     }
 
-    .plaintiff-msg {
-        background: linear-gradient(135deg, rgba(139, 0, 0, 0.2) 0%, rgba(139, 0, 0, 0.1) 100%);
-        border-left: 3px solid var(--plaintiff-crimson);
-        color: #fca5a5;
-    }
-
-    .defense-msg {
-        background: linear-gradient(135deg, rgba(0, 0, 128, 0.1) 0%, rgba(0, 0, 128, 0.2) 100%);
-        border-left: 3px solid var(--defense-navy);
-        color: #93c5fd;
-    }
-
-    .judge-msg {
-        background: linear-gradient(135deg, rgba(197, 160, 89, 0.15) 0%, rgba(139, 115, 85, 0.1) 100%);
-        border-left: 3px solid var(--judge-gold);
-        color: #fef3c7;
-    }
-
-    .juror-msg {
-        background: linear-gradient(135deg, rgba(74, 85, 104, 0.2) 0%, rgba(74, 85, 104, 0.1) 100%);
-        border-left: 3px solid var(--jury-neutral);
-        color: #cbd5e1;
-    }
-
-    .system-msg {
-        background: linear-gradient(135deg, rgba(55, 65, 81, 0.3) 0%, rgba(55, 65, 81, 0.15) 100%);
-        border-left: 3px solid #6b7280;
-        color: #9ca3af;
-        font-style: italic;
-    }
-
-    .agent-name {
-        font-family: 'Orbitron', monospace !important;
-        font-weight: 600;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        margin-bottom: 0.5rem;
-        opacity: 0.9;
-    }
-
-    .score-badge {
-        display: inline-block;
-        padding: 0.2rem 0.6rem;
-        border-radius: 2px;
-        font-family: 'JetBrains Mono', monospace !important;
-        font-size: 0.7rem;
+    .verdict-label {
+        font-family: var(--font-mono) !important;
+        font-size: 0.6rem;
         font-weight: 500;
-        margin-left: 0.75rem;
-        background: rgba(0,0,0,0.3);
-        border: 1px solid currentColor;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: var(--space-md);
+    }
+
+    .verdict-text {
+        font-family: var(--font-display) !important;
+        font-size: 1.8rem;
+        font-weight: 400;
+        letter-spacing: 0.1em;
+        color: var(--accent);
+    }
+
+    .verdict-details {
+        font-family: var(--font-body) !important;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        margin-top: var(--space-lg);
     }
 
     /* ══════════════════════════════════════════════════════════════════════════
        STREAMLIT COMPONENT OVERRIDES
        ══════════════════════════════════════════════════════════════════════════ */
+
+    /* File uploader */
     .stFileUploader {
-        background: var(--slate-mid) !important;
-        border: 1px dashed var(--text-dim) !important;
-        border-radius: 4px !important;
-        padding: 1rem !important;
+        background: var(--surface) !important;
+        border: 1px dashed var(--border) !important;
+        padding: var(--space-lg) !important;
     }
 
     .stFileUploader label {
-        font-family: 'Orbitron', monospace !important;
-        font-size: 0.7rem !important;
-        color: var(--text-secondary) !important;
-        text-transform: uppercase !important;
+        font-family: var(--font-mono) !important;
+        font-size: 0.65rem !important;
         letter-spacing: 0.1em !important;
+        text-transform: uppercase !important;
+        color: var(--text-tertiary) !important;
     }
 
+    /* Buttons */
     .stButton > button {
-        font-family: 'Orbitron', monospace !important;
-        text-transform: uppercase !important;
+        font-family: var(--font-mono) !important;
+        font-size: 0.7rem !important;
+        font-weight: 500 !important;
         letter-spacing: 0.1em !important;
-        background: linear-gradient(180deg, var(--slate-light), var(--slate-mid)) !important;
-        border: 1px solid var(--judge-gold-dim) !important;
-        color: var(--judge-gold) !important;
-        transition: all 0.3s ease !important;
-        border-radius: 2px !important;
+        text-transform: uppercase !important;
+        background: var(--surface-elevated) !important;
+        border: 1px solid var(--border) !important;
+        color: var(--text-secondary) !important;
+        padding: 0.6rem 1.2rem !important;
+        transition: all 0.2s ease !important;
     }
 
     .stButton > button:hover {
-        border-color: var(--judge-gold) !important;
-        box-shadow: 0 0 20px var(--judge-gold-glow) !important;
-        transform: translateY(-1px) !important;
+        background: var(--surface-hover) !important;
+        border-color: var(--accent-dim) !important;
+        color: var(--accent) !important;
     }
 
     .stButton > button:disabled {
-        background: var(--slate-dark) !important;
-        border-color: var(--text-dim) !important;
-        color: var(--text-dim) !important;
-        cursor: not-allowed !important;
+        background: var(--surface) !important;
+        border-color: var(--border-subtle) !important;
+        color: var(--text-muted) !important;
     }
 
-    .stProgress > div > div {
-        background: linear-gradient(90deg, var(--defense-navy), var(--judge-gold), var(--plaintiff-crimson)) !important;
-    }
-
-    .stSelectbox, .stTextInput, .stTextArea {
-        font-family: 'Rajdhani', sans-serif !important;
-    }
-
+    /* Expander */
     .stExpander {
-        background: var(--slate-mid) !important;
+        background: var(--surface) !important;
         border: 1px solid var(--border-subtle) !important;
-        border-radius: 4px !important;
     }
 
     .stExpander > div > div > div > div {
-        font-family: 'Orbitron', monospace !important;
-        font-size: 0.8rem !important;
-        text-transform: uppercase !important;
+        font-family: var(--font-mono) !important;
+        font-size: 0.7rem !important;
         letter-spacing: 0.1em !important;
+        text-transform: uppercase !important;
+        color: var(--text-secondary) !important;
     }
 
     /* Sidebar */
     section[data-testid="stSidebar"] {
-        background: linear-gradient(180deg, var(--shadow-black), var(--slate-dark)) !important;
+        background: var(--surface) !important;
         border-right: 1px solid var(--border-subtle) !important;
     }
 
     section[data-testid="stSidebar"] .stMarkdown h3 {
-        font-family: 'Orbitron', monospace !important;
-        color: var(--judge-gold) !important;
+        font-family: var(--font-display) !important;
         font-size: 0.9rem !important;
+        font-weight: 500 !important;
+        color: var(--text-primary) !important;
+        letter-spacing: 0.05em !important;
     }
 
-    .sidebar-header {
-        font-family: 'Orbitron', monospace !important;
+    .sidebar-title {
+        font-family: var(--font-display) !important;
         font-size: 1rem !important;
-        font-weight: 700 !important;
-        color: var(--judge-gold) !important;
-        margin-bottom: 1rem !important;
-        letter-spacing: 0.15em !important;
+        font-weight: 500 !important;
+        color: var(--accent) !important;
+        letter-spacing: 0.1em !important;
+        margin-bottom: var(--space-lg) !important;
     }
 
-    /* Sidebar collapse button (three dots) - make it white */
+    /* Sidebar buttons */
     button[data-testid="stSidebarCollapseButton"],
     button[data-testid="baseButton-header"],
     [data-testid="stSidebar"] button[kind="header"],
     [data-testid="collapsedControl"] button {
-        color: white !important;
+        color: var(--text-secondary) !important;
     }
 
     button[data-testid="stSidebarCollapseButton"] svg,
     button[data-testid="baseButton-header"] svg,
     [data-testid="stSidebar"] button[kind="header"] svg,
     [data-testid="collapsedControl"] button svg {
-        fill: white !important;
-        stroke: white !important;
+        fill: var(--text-secondary) !important;
+        stroke: var(--text-secondary) !important;
     }
 
-    /* Collapsed sidebar expand button */
     [data-testid="collapsedControl"] {
-        background: var(--slate-dark) !important;
+        background: var(--surface) !important;
         border: 1px solid var(--border-subtle) !important;
     }
 
     [data-testid="collapsedControl"]:hover {
-        background: var(--slate-mid) !important;
-        border-color: var(--judge-gold-dim) !important;
+        background: var(--surface-hover) !important;
+        border-color: var(--border) !important;
     }
 
     /* Dividers */
     hr {
         border: none !important;
         height: 1px !important;
-        background: linear-gradient(90deg, transparent, var(--judge-gold-dim), transparent) !important;
-        margin: 1.5rem 0 !important;
+        background: var(--border) !important;
+        margin: var(--space-lg) 0 !important;
+    }
+
+    /* Tabs */
+    .stTabs [data-baseweb="tab-list"] {
+        background: transparent !important;
+        border-bottom: 1px solid var(--border-subtle) !important;
+        gap: 0 !important;
+    }
+
+    .stTabs [data-baseweb="tab"] {
+        font-family: var(--font-mono) !important;
+        font-size: 0.65rem !important;
+        letter-spacing: 0.05em !important;
+        color: var(--text-tertiary) !important;
+        background: transparent !important;
+        border: none !important;
+        padding: var(--space-sm) var(--space-md) !important;
+    }
+
+    .stTabs [aria-selected="true"] {
+        color: var(--accent) !important;
+        border-bottom: 2px solid var(--accent) !important;
+        background: transparent !important;
     }
 
     /* Metrics */
     [data-testid="stMetricValue"] {
-        font-family: 'JetBrains Mono', monospace !important;
+        font-family: var(--font-display) !important;
+        font-size: 1.5rem !important;
         color: var(--text-primary) !important;
     }
 
     [data-testid="stMetricLabel"] {
-        font-family: 'Orbitron', monospace !important;
-        font-size: 0.65rem !important;
-        text-transform: uppercase !important;
+        font-family: var(--font-mono) !important;
+        font-size: 0.6rem !important;
         letter-spacing: 0.1em !important;
+        text-transform: uppercase !important;
+        color: var(--text-muted) !important;
     }
 
-    /* Scrollbar Styling */
+    /* Progress bars */
+    .stProgress > div > div {
+        background: linear-gradient(90deg, var(--defense-border), var(--text-muted), var(--plaintiff-border)) !important;
+    }
+
+    /* Info/warning/success/error */
+    .stAlert {
+        font-family: var(--font-body) !important;
+        border-radius: 0 !important;
+    }
+
+    /* Scrollbars - Minimal */
     ::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
+        width: 4px;
+        height: 4px;
     }
 
     ::-webkit-scrollbar-track {
-        background: var(--slate-dark);
+        background: var(--surface);
     }
 
     ::-webkit-scrollbar-thumb {
-        background: var(--slate-light);
-        border-radius: 3px;
+        background: var(--text-muted);
     }
 
     ::-webkit-scrollbar-thumb:hover {
-        background: var(--text-dim);
+        background: var(--text-tertiary);
     }
 
     /* ══════════════════════════════════════════════════════════════════════════
-       ANIMATIONS
+       ANIMATIONS - Purposeful & Subtle
        ══════════════════════════════════════════════════════════════════════════ */
-    @keyframes fadeInUp {
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
         from {
             opacity: 0;
-            transform: translateY(10px);
+            transform: translateY(8px);
         }
         to {
             opacity: 1;
@@ -855,391 +842,101 @@ def get_css() -> str:
     }
 
     .animate-in {
-        animation: fadeInUp 0.4s ease forwards;
+        animation: slideUp 0.3s ease forwards;
     }
 
-    @keyframes typing {
-        from { opacity: 0.3; }
-        to { opacity: 1; }
+    .fade-in {
+        animation: fadeIn 0.2s ease forwards;
     }
 
-    .typing-indicator {
-        animation: typing 0.5s ease-in-out infinite alternate;
-    }
-
-    @keyframes glow-pulse {
-        0%, 100% {
-            box-shadow: 0 0 20px var(--judge-gold-glow);
-        }
-        50% {
-            box-shadow: 0 0 40px var(--judge-gold-glow), 0 0 60px rgba(197, 160, 89, 0.1);
-        }
-    }
-
-    .glow-effect {
-        animation: glow-pulse 3s ease-in-out infinite;
-    }
-
-    @keyframes borderGlow {
-        0%, 100% {
-            border-color: var(--judge-gold-dim);
-        }
-        50% {
-            border-color: var(--judge-gold);
-        }
-    }
-
-    .pulse-border {
-        animation: borderGlow 2s ease-in-out infinite;
-    }
-
-    /* ══════════════════════════════════════════════════════════════════════════
-       CONTROL PANEL
-       ══════════════════════════════════════════════════════════════════════════ */
-    .control-panel {
-        background: var(--slate-mid);
-        border: 1px solid var(--border-subtle);
-        border-radius: 4px;
-        padding: 1rem;
-        margin-top: 1rem;
-    }
-
-    .control-header {
-        font-family: 'Orbitron', monospace !important;
-        font-size: 0.7rem;
-        color: var(--text-dim);
-        text-transform: uppercase;
-        letter-spacing: 0.2em;
-        margin-bottom: 0.75rem;
-    }
-
-    /* ══════════════════════════════════════════════════════════════════════════
-       SPECIAL EFFECTS
-       ══════════════════════════════════════════════════════════════════════════ */
-    .verdict-card {
-        background: linear-gradient(180deg, rgba(197, 160, 89, 0.1), rgba(0, 0, 0, 0.3));
-        border: 2px solid var(--judge-gold);
-        border-radius: 4px;
-        padding: 2rem;
-        text-align: center;
-        margin: 1rem 0;
-        box-shadow: 0 0 40px var(--judge-gold-glow);
-    }
-
-    .verdict-text {
-        font-family: 'Orbitron', monospace !important;
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--judge-gold);
-        text-transform: uppercase;
-        letter-spacing: 0.2em;
-    }
-
-    .case-title {
-        font-family: 'Orbitron', monospace !important;
-        font-size: 0.9rem;
-        color: var(--text-primary);
-        text-align: center;
-        padding: 0.5rem 1rem;
-        background: rgba(0, 0, 0, 0.3);
-        border: 1px solid var(--border-subtle);
-        border-radius: 2px;
-        margin-bottom: 1rem;
-    }
-
-    /* ══════════════════════════════════════════════════════════════════════════
-       MESSAGE CARDS & COLLAPSIBLE LISTS
-       ══════════════════════════════════════════════════════════════════════════ */
-    
-    .message-card-list {
-        max-height: 300px;
-        overflow-y: auto;
-        padding: 0.5rem;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    .message-card {
-        background: rgba(0, 0, 0, 0.3);
-        border: 1px solid var(--border-subtle);
-        border-radius: 4px;
-        padding: 0.6rem 0.8rem;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        position: relative;
-    }
-
-    .message-card:hover {
-        border-color: var(--text-dim);
-        transform: translateX(3px);
-        background: rgba(0, 0, 0, 0.4);
-    }
-
-    .message-card.active {
-        border-color: var(--judge-gold);
-        box-shadow: 0 0 10px var(--judge-gold-glow);
-    }
-
-    .message-card.plaintiff-card {
-        border-left: 3px solid var(--plaintiff-crimson);
-    }
-
-    .message-card.defense-card {
-        border-left: 3px solid var(--defense-navy);
-    }
-
-    .message-card.juror-card-mini {
-        border-left: 3px solid var(--jury-neutral);
-    }
-
-    /* Argument Card using HTML details/summary (no Material Icons needed) */
-    .argument-card {
-        background: rgba(10, 12, 16, 0.4);
-        border: 1px solid var(--border-subtle);
-        border-radius: 4px;
-        margin-bottom: 0.4rem;
-        overflow: hidden;
-        transition: border-color 0.2s ease;
-    }
-
-    .argument-card:hover {
-        border-color: var(--border-glow);
-    }
-
-    .argument-card summary {
-        padding: 0.7rem 0.8rem;
-        cursor: pointer;
-        font-size: 0.85rem;
-        color: var(--text-secondary);
-        font-family: 'Rajdhani', sans-serif;
-        font-weight: 500;
-        list-style: none;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: all 0.2s ease;
-    }
-
-    .argument-card summary::-webkit-details-marker {
-        display: none;
-    }
-
-    .argument-card summary::before {
-        content: '▶';
-        font-size: 0.7rem;
-        transition: transform 0.2s ease;
-    }
-
-    .argument-card[open] summary::before {
-        transform: rotate(90deg);
-    }
-
-    .argument-card summary:hover {
-        background: rgba(255, 255, 255, 0.05);
-        color: var(--text-primary);
-    }
-
-    .argument-card.plaintiff-card {
-        border-left: 3px solid var(--plaintiff-crimson);
-    }
-
-    .argument-card.defense-card {
-        border-left: 3px solid var(--defense-navy);
-    }
-
-    .argument-full {
-        padding: 0.8rem;
-        background: rgba(0, 0, 0, 0.2);
-        border-top: 1px solid var(--border-subtle);
-        font-size: 0.85rem;
-        line-height: 1.5;
-        color: var(--text-primary);
-        max-height: 200px;
-        overflow-y: auto;
-    }
-
-    .card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 0.25rem;
-    }
-
-    .card-time {
-        font-family: 'JetBrains Mono', monospace !important;
-        font-size: 0.6rem;
-        color: var(--text-dim);
-    }
-
-    .card-label {
-        font-family: 'Orbitron', monospace !important;
-        font-size: 0.55rem;
-        color: var(--text-secondary);
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-    }
-
-    .card-preview {
-        font-family: 'Rajdhani', sans-serif !important;
-        font-size: 0.8rem;
-        color: var(--text-primary);
-        line-height: 1.4;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-
-    .card-expand-hint {
-        font-size: 0.6rem;
-        color: var(--text-dim);
-        text-align: right;
-        margin-top: 0.25rem;
-    }
-
-    /* Streaming Area */
-    .streaming-area {
-        background: linear-gradient(180deg, var(--slate-dark), rgba(0, 0, 0, 0.5));
-        border: 1px dashed var(--border-subtle);
-        border-radius: 4px;
-        padding: 1rem;
-        margin-top: 0.75rem;
-        min-height: 80px;
-        position: relative;
-    }
-
-    .streaming-area.active {
-        border-color: var(--judge-gold);
-        animation: streamPulse 1.5s ease-in-out infinite;
-    }
-
-    .streaming-area.plaintiff-stream {
-        border-color: var(--plaintiff-crimson);
-    }
-
-    .streaming-area.defense-stream {
-        border-color: var(--defense-navy);
-    }
-
-    @keyframes streamPulse {
-        0%, 100% { border-color: var(--judge-gold-dim); }
-        50% { border-color: var(--judge-gold); }
-    }
-
-    .streaming-label {
-        font-family: 'JetBrains Mono', monospace !important;
-        font-size: 0.6rem;
-        color: var(--text-dim);
-        text-transform: uppercase;
-        letter-spacing: 0.15em;
-        margin-bottom: 0.5rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .streaming-label::before {
-        content: '';
-        width: 6px;
-        height: 6px;
-        background: var(--judge-gold);
-        border-radius: 50%;
-        animation: blink 1s ease-in-out infinite;
+    /* Typing cursor */
+    .typing-cursor {
+        display: inline-block;
+        width: 2px;
+        height: 1em;
+        background: var(--accent);
+        margin-left: 2px;
+        animation: blink 0.8s step-end infinite;
     }
 
     @keyframes blink {
         0%, 100% { opacity: 1; }
-        50% { opacity: 0.3; }
+        50% { opacity: 0; }
     }
 
-    .streaming-content {
-        font-family: 'Rajdhani', sans-serif !important;
-        font-size: 0.95rem;
-        color: var(--text-primary);
-        line-height: 1.6;
-    }
-
-    /* Expanded Transcript */
-    .expanded-transcript {
-        background: linear-gradient(180deg, var(--slate-mid), var(--slate-dark));
-        border: 1px solid var(--judge-gold-dim);
-        border-radius: 4px;
-        padding: 1rem 1.25rem;
-        margin-top: 1rem;
-        position: relative;
-        animation: fadeInUp 0.3s ease forwards;
-    }
-
-    .expanded-transcript::before {
-        content: '';
-        position: absolute;
-        top: -8px;
-        left: 2rem;
-        width: 14px;
-        height: 14px;
-        background: var(--slate-mid);
-        border-top: 1px solid var(--judge-gold-dim);
-        border-left: 1px solid var(--judge-gold-dim);
-        transform: rotate(45deg);
-    }
-
-    .expanded-header {
-        display: flex;
-        justify-content: space-between;
+    /* ══════════════════════════════════════════════════════════════════════════
+       STREAMING STATES
+       ══════════════════════════════════════════════════════════════════════════ */
+    .streaming-indicator {
+        display: inline-flex;
         align-items: center;
-        padding-bottom: 0.75rem;
-        margin-bottom: 0.75rem;
-        border-bottom: 1px solid var(--border-subtle);
-    }
-
-    .expanded-title {
-        font-family: 'Orbitron', monospace !important;
-        font-size: 0.7rem;
-        color: var(--text-secondary);
-        text-transform: uppercase;
+        gap: var(--space-sm);
+        font-family: var(--font-mono) !important;
+        font-size: 0.65rem;
+        color: var(--text-muted);
         letter-spacing: 0.1em;
+        text-transform: uppercase;
     }
 
-    .expanded-close {
-        font-size: 0.7rem;
-        color: var(--text-dim);
-        cursor: pointer;
-        padding: 0.25rem 0.5rem;
+    .streaming-dot {
+        width: 4px;
+        height: 4px;
+        background: var(--accent);
+        border-radius: 50%;
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 0.3; }
+        50% { opacity: 1; }
+    }
+
+    /* ══════════════════════════════════════════════════════════════════════════
+       SPECIAL ELEMENTS
+       ══════════════════════════════════════════════════════════════════════════ */
+
+    /* Session status card in sidebar */
+    .session-status {
+        background: var(--surface-elevated);
         border: 1px solid var(--border-subtle);
-        border-radius: 2px;
-        transition: all 0.2s ease;
-    }
-
-    .expanded-close:hover {
-        border-color: var(--judge-gold);
-        color: var(--judge-gold);
-    }
-
-    .expanded-content {
-        font-family: 'Rajdhani', sans-serif !important;
-        font-size: 1rem;
-        color: var(--text-primary);
+        border-left: 2px solid var(--accent);
+        padding: var(--space-md);
+        font-family: var(--font-mono) !important;
+        font-size: 0.75rem;
         line-height: 1.8;
-        max-height: 300px;
-        overflow-y: auto;
     }
 
-    /* Header Icons */
-    .header-icon {
-        font-size: 1rem;
-        margin-right: 0.5rem;
+    .session-status strong {
+        color: var(--text-secondary);
     }
 
-    .counsel-header-with-icon {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
+    .session-status span {
+        color: var(--text-tertiary);
     }
 
-    /* Juror Avatar Emojis */
-    .juror-face {
-        font-size: 2rem;
-        margin-bottom: 0.25rem;
+    /* Main toggle button */
+    button[title="Toggle Sidebar Visibility"] {
+        position: fixed !important;
+        top: 0.75rem !important;
+        left: 0.75rem !important;
+        z-index: 999999 !important;
+        background: var(--surface) !important;
+        border: 1px solid var(--border) !important;
+        color: var(--text-secondary) !important;
+        width: 32px !important;
+        height: 32px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        transition: all 0.2s ease !important;
+        font-size: 0.9rem !important;
+    }
+
+    button[title="Toggle Sidebar Visibility"]:hover {
+        background: var(--surface-hover) !important;
+        border-color: var(--accent-dim) !important;
+        color: var(--accent) !important;
     }
 
 </style>
@@ -1248,27 +945,27 @@ def get_css() -> str:
 
 # Color mappings for programmatic use
 AGENT_COLORS = {
-    "plaintiff": {"bg": "#8B0000", "border": "#A52A2A", "text": "#fca5a5"},
-    "defense": {"bg": "#000080", "border": "#191970", "text": "#93c5fd"},
-    "judge": {"bg": "#8B7355", "border": "#C5A059", "text": "#fef3c7"},
-    "juror": {"bg": "#4a5568", "border": "#64748b", "text": "#cbd5e1"},
-    "system": {"bg": "#374151", "border": "#6b7280", "text": "#9ca3af"}
+    "plaintiff": {"bg": "#4A1C1C", "border": "#6B2A2A", "text": "#D4A5A5"},
+    "defense": {"bg": "#1C2A4A", "border": "#2A3A6B", "text": "#A5B8D4"},
+    "judge": {"bg": "#141414", "border": "#8B7355", "text": "#EDE8E0"},
+    "juror": {"bg": "#1A1A1A", "border": "#4A4845", "text": "#A8A29E"},
+    "system": {"bg": "#141414", "border": "#4A4845", "text": "#6B6560"}
 }
 
 
 def get_score_color(score: int) -> str:
     """Get color for a bias score (0-100 scale, 50 = neutral)."""
     if score < 40:
-        return "#000080"  # Navy (defense)
+        return "#A5B8D4"  # Defense blue
     elif score > 60:
-        return "#8B0000"  # Crimson (plaintiff)
-    return "#4a5568"  # Neutral grey
+        return "#D4A5A5"  # Plaintiff wine
+    return "#A8A29E"  # Neutral
 
 
 def get_sentiment_class(score: int) -> str:
     """Get CSS class based on sentiment score."""
     if score > 55:
-        return "leaning-plaintiff"
+        return "juror-plaintiff"
     elif score < 45:
-        return "leaning-defense"
-    return ""
+        return "juror-defense"
+    return "juror-neutral"
