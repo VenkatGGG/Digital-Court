@@ -169,7 +169,8 @@ def render_counsel_box(side: str, messages: list, streaming_content: str = None)
     <div class="argument-text">{escaped_stream}<span class="typing-cursor"></span></div>
 </div>'''
     elif not messages:
-        streaming_html = ''
+        # Empty state - show nothing
+        streaming_html = '&nbsp;'
 
     return f'''
 <div class="{box_class}">
