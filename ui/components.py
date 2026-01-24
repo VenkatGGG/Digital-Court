@@ -62,6 +62,22 @@ def render_header(case_id: str = ""):
     ''', unsafe_allow_html=True)
 
 
+def render_theme_toggle():
+    """Render the dark/light mode toggle at the top right."""
+    is_dark = st.session_state.get('theme_dark', True)
+    theme_value = "dark" if is_dark else "light"
+
+    st.markdown(f'''
+    <script>
+        document.documentElement.setAttribute('data-theme', '{theme_value}');
+        document.body.setAttribute('data-theme', '{theme_value}');
+        // Also apply to Streamlit's app container
+        const stApp = document.querySelector('.stApp');
+        if (stApp) stApp.setAttribute('data-theme', '{theme_value}');
+    </script>
+    ''', unsafe_allow_html=True)
+
+
 def render_status_bar(phase: str, case_id: str, session_status: str = "ACTIVE"):
     """Render the minimal status indicator."""
     st.markdown(f'''

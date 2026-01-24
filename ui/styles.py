@@ -30,7 +30,7 @@ def get_css() -> str:
     @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=IBM+Plex+Mono:wght@300;400;500&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap');
 
     :root {
-        /* The Ink & Parchment Palette */
+        /* The Ink & Parchment Palette - Dark Theme (Default) */
         --canvas: #0B0B0B;
         --surface: #141414;
         --surface-elevated: #1A1A1A;
@@ -72,6 +72,53 @@ def get_css() -> str:
         --space-lg: 1.5rem;
         --space-xl: 2.5rem;
         --space-2xl: 4rem;
+    }
+
+    /* Light Theme - Parchment & Ink */
+    [data-theme="light"],
+    [data-theme="light"] .stApp,
+    .stApp[data-theme="light"] {
+        --canvas: #F5F3EF;
+        --surface: #FFFFFF;
+        --surface-elevated: #FAFAF8;
+        --surface-hover: #F0EDE8;
+
+        --text-primary: #1A1816;
+        --text-secondary: #4A4845;
+        --text-tertiary: #7A756F;
+        --text-muted: #A8A29E;
+
+        --accent: #6B5A48;
+        --accent-dim: #8B7355;
+        --accent-glow: rgba(107, 90, 72, 0.12);
+
+        --plaintiff: #F5E8E8;
+        --plaintiff-text: #6B2A2A;
+        --plaintiff-border: #C49494;
+
+        --defense: #E8EDF5;
+        --defense-text: #2A3A6B;
+        --defense-border: #94A4C4;
+
+        --verdict: #E8F5E8;
+        --verdict-text: #2A4A2A;
+
+        --border: rgba(107, 90, 72, 0.2);
+        --border-subtle: rgba(0, 0, 0, 0.06);
+        --border-strong: rgba(107, 90, 72, 0.35);
+    }
+
+    /* Light theme scrollbars */
+    [data-theme="light"] ::-webkit-scrollbar-track {
+        background: var(--surface-elevated);
+    }
+
+    [data-theme="light"] ::-webkit-scrollbar-thumb {
+        background: var(--text-muted);
+    }
+
+    [data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+        background: var(--text-tertiary);
     }
 
     /* ══════════════════════════════════════════════════════════════════════════
@@ -989,6 +1036,36 @@ def get_css() -> str:
         background: var(--surface-hover) !important;
         border-color: var(--accent-dim) !important;
         color: var(--accent) !important;
+    }
+
+    /* ══════════════════════════════════════════════════════════════════════════
+       THEME TOGGLE
+       ══════════════════════════════════════════════════════════════════════════ */
+
+    /* Style the theme toggle button */
+    [data-testid="stButton"][data-key="theme_toggle"] button,
+    button[kind="secondary"]:has(p:is(:empty)) {
+        background: var(--surface) !important;
+        border: 1px solid var(--border) !important;
+        color: var(--text-primary) !important;
+        padding: 0.4rem 0.6rem !important;
+        min-width: 40px !important;
+        font-size: 1.1rem !important;
+        transition: all 0.2s ease !important;
+    }
+
+    [data-testid="stButton"][data-key="theme_toggle"] button:hover {
+        background: var(--surface-hover) !important;
+        border-color: var(--accent) !important;
+    }
+
+    /* Theme toggle container positioning */
+    .theme-toggle-row {
+        display: flex;
+        justify-content: flex-end;
+        padding: 0.5rem 1rem;
+        position: relative;
+        z-index: 100;
     }
 
 </style>
