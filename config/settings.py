@@ -44,6 +44,12 @@ class Settings:
     # UI Configuration
     app_title: str = "Lex Umbra"
     app_subtitle: str = "The Shadow Judicial System"
+
+    # Voice Courtroom Configuration
+    voice_server_host: str = field(default_factory=lambda: os.getenv("VOICE_SERVER_HOST", "localhost"))
+    voice_server_port: int = field(default_factory=lambda: int(os.getenv("VOICE_SERVER_PORT", "8765")))
+    defense_api_url: str = field(default_factory=lambda: os.getenv("DEFENSE_API_URL", "http://localhost:8001/generate"))
+    prosecutor_api_url: str = field(default_factory=lambda: os.getenv("PROSECUTOR_API_URL", "http://localhost:8002/generate"))
     
     def validate(self) -> bool:
         """Validate required settings."""
