@@ -9,11 +9,12 @@ from enum import Enum
 
 class TrialPhase(Enum):
     """Enumeration of trial phases."""
-    
+
     AWAITING_COMPLAINT = "awaiting_complaint"
     COURT_ASSEMBLED = "court_assembled"
     OPENING_STATEMENTS = "opening_statements"
     ARGUMENTS = "arguments"
+    VOICE_ARGUMENTS = "voice_arguments"
     JURY_DELIBERATION = "jury_deliberation"
     VERDICT = "verdict"
     ADJOURNED = "adjourned"
@@ -26,6 +27,7 @@ class TrialPhase(Enum):
             self.COURT_ASSEMBLED: "⚖️ Court Assembled",
             self.OPENING_STATEMENTS: "🎬 Opening Statements",
             self.ARGUMENTS: "⚔️ Arguments",
+            self.VOICE_ARGUMENTS: "🎙️ Voice Arguments",
             self.JURY_DELIBERATION: "👥 Jury Deliberation",
             self.VERDICT: "📜 Verdict",
             self.ADJOURNED: "🏛️ Adjourned"
@@ -40,4 +42,4 @@ class TrialPhase(Enum):
     @property
     def allows_next_round(self) -> bool:
         """Check if another argument round is allowed."""
-        return self == self.ARGUMENTS
+        return self in [self.ARGUMENTS, self.VOICE_ARGUMENTS]

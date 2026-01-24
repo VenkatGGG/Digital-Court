@@ -637,3 +637,245 @@ def render_judge_box_header():
     st.markdown('''
     <div class="bench-label">The Court</div>
     ''', unsafe_allow_html=True)
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# VOICE ARGUMENT COMPONENTS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def render_voice_counsel_box(
+    side: str,
+    is_recording: bool = False,
+    is_playing: bool = False,
+    transcript_preview: str = "",
+    audio_url: Optional[str] = None
+) -> str:
+    """
+    Render counsel box for voice arguments with audio controls.
+
+    Args:
+        side: "plaintiff" or "defense"
+        is_recording: Whether currently recording
+        is_playing: Whether audio is currently playing
+        transcript_preview: Preview of transcribed speech
+        audio_url: URL to audio file for playback
+
+    Returns:
+        HTML string for the voice counsel box
+    """
+    if side == "plaintiff":
+        header_class = "counsel-header counsel-header-plaintiff"
+        box_class = "counsel-box counsel-box-plaintiff"
+        header_text = "Plaintiff"
+        accent_color = "rgba(139, 115, 85, 0.6)"
+    else:
+        header_class = "counsel-header counsel-header-defense"
+        box_class = "counsel-box counsel-box-defense"
+        header_text = "Defense"
+        accent_color = "rgba(85, 115, 139, 0.6)"
+
+    # Recording indicator
+    recording_indicator = ""
+    if is_recording:
+        recording_indicator = f'''
+        <div class="voice-recording-indicator">
+            <span class="voice-pulse"></span>
+            <span class="voice-status">Recording...</span>
+        </div>
+        '''
+
+    # Playing indicator
+    playing_indicator = ""
+    if is_playing:
+        playing_indicator = f'''
+        <div class="voice-playing-indicator">
+            <span class="voice-waveform">
+                <span class="voice-bar"></span>
+                <span class="voice-bar"></span>
+                <span class="voice-bar"></span>
+                <span class="voice-bar"></span>
+                <span class="voice-bar"></span>
+            </span>
+            <span class="voice-status">Playing...</span>
+        </div>
+        '''
+
+    # Transcript preview
+    transcript_html = ""
+    if transcript_preview:
+        escaped_transcript = escape_html(transcript_preview)
+        transcript_html = f'''
+        <div class="voice-transcript-preview">
+            <div class="transcript-label">Transcript</div>
+            <div class="transcript-text">{escaped_transcript}</div>
+        </div>
+        '''
+
+    # Audio player (placeholder - will be replaced with actual audio element)
+    audio_html = ""
+    if audio_url:
+        audio_html = f'''
+        <div class="voice-audio-player">
+            <audio controls src="{escape_html(audio_url)}" class="voice-audio-element"></audio>
+        </div>
+        '''
+
+    return f'''
+    <div class="{box_class} voice-counsel-box">
+        <div class="{header_class}">
+            <span class="voice-icon">🎙️</span> {header_text}
+        </div>
+        <div class="counsel-content voice-content">
+            {recording_indicator}
+            {playing_indicator}
+            {transcript_html}
+            {audio_html}
+        </div>
+    </div>
+    '''
+
+
+def render_voice_controls(side: str, can_record: bool = True, can_submit: bool = False):
+    """
+    Render voice recording controls for a counsel side.
+
+    Args:
+        side: "plaintiff" or "defense"
+        can_record: Whether recording is allowed
+        can_submit: Whether submit is allowed (has recorded audio)
+    """
+    button_class = f"voice-btn voice-btn-{side}"
+    disabled_attr = "" if can_record else "disabled"
+
+    st.markdown(f'''
+    <div class="voice-controls voice-controls-{side}">
+        <button class="{button_class} voice-record-btn" {disabled_attr}>
+            <span class="btn-icon">🎤</span>
+            <span class="btn-text">Record</span>
+        </button>
+        <button class="{button_class} voice-stop-btn" style="display: none;">
+            <span class="btn-icon">⏹️</span>
+            <span class="btn-text">Stop</span>
+        </button>
+        <button class="{button_class} voice-play-btn" disabled>
+            <span class="btn-icon">▶️</span>
+            <span class="btn-text">Play</span>
+        </button>
+        <button class="{button_class} voice-submit-btn" {'disabled' if not can_submit else ''}>
+            <span class="btn-icon">📤</span>
+            <span class="btn-text">Submit</span>
+        </button>
+    </div>
+    ''', unsafe_allow_html=True)
+
+
+def render_voice_argument_entry(
+    side: str,
+    round_num: int,
+    transcript: str,
+    audio_url: Optional[str] = None,
+    duration_sec: float = 0
+) -> str:
+    """
+    Render a completed voice argument entry.
+
+    Args:
+        side: "plaintiff" or "defense"
+        round_num: Argument round number
+        transcript: Full transcript of the argument
+        audio_url: URL to the audio file
+        duration_sec: Duration of the audio in seconds
+
+    Returns:
+        HTML string for the voice argument entry
+    """
+    collapse_class = f"argument-collapse argument-collapse-{side}"
+    escaped_transcript = escape_html(transcript)
+
+    # Preview: first 100 chars
+    preview = escaped_transcript[:100].replace('\n', ' ')
+    if len(escaped_transcript) > 100:
+        preview += "..."
+
+    # Full content with line breaks
+    full_content = escaped_transcript.replace('\n', '<br>')
+
+    # Duration display
+    duration_display = ""
+    if duration_sec > 0:
+        minutes = int(duration_sec // 60)
+        seconds = int(duration_sec % 60)
+        duration_display = f" ({minutes}:{seconds:02d})"
+
+    # Audio player
+    audio_html = ""
+    if audio_url:
+        audio_html = f'''
+        <div class="voice-audio-player" style="margin-top: 0.5rem;">
+            <audio controls src="{escape_html(audio_url)}" class="voice-audio-element"></audio>
+        </div>
+        '''
+
+    return f'''
+    <details class="{collapse_class}">
+        <summary>
+            <span class="voice-icon-small">🎙️</span>
+            Round {round_num}{duration_display} &mdash; {preview}
+        </summary>
+        <div class="argument-collapse-content">
+            {full_content}
+            {audio_html}
+        </div>
+    </details>
+    '''
+
+
+def render_voice_mode_toggle(is_voice_mode: bool = False):
+    """
+    Render toggle switch between text and voice argument modes.
+
+    Args:
+        is_voice_mode: Whether voice mode is currently active
+    """
+    text_active = "" if is_voice_mode else "active"
+    voice_active = "active" if is_voice_mode else ""
+
+    st.markdown(f'''
+    <div class="argument-mode-toggle">
+        <button class="mode-toggle-btn {text_active}" data-mode="text">
+            <span class="mode-icon">💬</span>
+            <span class="mode-label">Text</span>
+        </button>
+        <button class="mode-toggle-btn {voice_active}" data-mode="voice">
+            <span class="mode-icon">🎙️</span>
+            <span class="mode-label">Voice</span>
+        </button>
+    </div>
+    ''', unsafe_allow_html=True)
+
+
+def render_voice_status_indicator(status: str, message: str = ""):
+    """
+    Render voice processing status indicator.
+
+    Args:
+        status: One of "idle", "recording", "processing", "playing", "error"
+        message: Optional status message
+    """
+    status_configs = {
+        "idle": {"class": "voice-status-idle", "icon": "🎤", "default_msg": "Ready to record"},
+        "recording": {"class": "voice-status-recording", "icon": "🔴", "default_msg": "Recording..."},
+        "processing": {"class": "voice-status-processing", "icon": "⏳", "default_msg": "Processing..."},
+        "playing": {"class": "voice-status-playing", "icon": "🔊", "default_msg": "Playing..."},
+        "error": {"class": "voice-status-error", "icon": "⚠️", "default_msg": "Error occurred"},
+    }
+
+    config = status_configs.get(status, status_configs["idle"])
+    display_message = message or config["default_msg"]
+
+    st.markdown(f'''
+    <div class="voice-status-indicator {config['class']}">
+        <span class="status-icon">{config['icon']}</span>
+        <span class="status-message">{escape_html(display_message)}</span>
+    </div>
+    ''', unsafe_allow_html=True)
