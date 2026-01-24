@@ -32,6 +32,18 @@ def init_session_state():
     if "sidebar_visible" not in st.session_state:
         st.session_state.sidebar_visible = True
 
+    # Voice argument mode state
+    if "voice_mode" not in st.session_state:
+        st.session_state.voice_mode = False
+    if "voice_recording_side" not in st.session_state:
+        st.session_state.voice_recording_side = None  # "plaintiff" or "defense"
+    if "voice_audio_data" not in st.session_state:
+        st.session_state.voice_audio_data = {}  # {side: bytes}
+    if "voice_transcripts" not in st.session_state:
+        st.session_state.voice_transcripts = {}  # {side: str}
+    if "voice_status" not in st.session_state:
+        st.session_state.voice_status = "idle"  # idle, recording, processing, playing, error
+
 def add_message(orch, agent_type: str, agent_name: str, content: str, score=None) -> dict:
     """Add message to transcript and return formatted dict."""
     msg = orch._add_to_transcript(agent_type, agent_name, content, score)
