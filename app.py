@@ -20,6 +20,7 @@ from ui.components import (
     render_jury_box_from_scores,
     render_message,
     escape_html,
+    render_theme_toggle,
 )
 from ui.handlers import extract_pdf_text
 
@@ -70,6 +71,15 @@ st.markdown(get_css(), unsafe_allow_html=True)
 
 def main():
     init_session_state()
+
+    render_theme_toggle()
+
+    theme_col1, theme_col2 = st.columns([20, 1])
+    with theme_col2:
+        is_dark = st.session_state.theme_dark
+        if st.button("☀️" if is_dark else "🌙", key="theme_toggle", help="Toggle light/dark mode"):
+            st.session_state.theme_dark = not is_dark
+            st.rerun()
 
     if st.session_state.demo_mode:
         render_demo_mode()

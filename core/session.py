@@ -27,6 +27,10 @@ def init_session_state():
         st.session_state.expanded_message = None
     if "trial_started" not in st.session_state:
         st.session_state.trial_started = False
+    if "theme_dark" not in st.session_state:
+        st.session_state.theme_dark = True
+    if "sidebar_visible" not in st.session_state:
+        st.session_state.sidebar_visible = True
 
 def add_message(orch, agent_type: str, agent_name: str, content: str, score=None) -> dict:
     """Add message to transcript and return formatted dict."""
