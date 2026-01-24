@@ -170,7 +170,7 @@ def render_counsel_box(side: str, messages: list, streaming_content: str = None)
 </div>'''
     elif not messages:
         # Empty state - show nothing
-        streaming_html = '&nbsp;'
+        streaming_html = ''
 
     return f'''
 <div class="{box_class}">
